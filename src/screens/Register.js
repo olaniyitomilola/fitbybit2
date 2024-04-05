@@ -10,7 +10,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { FontAwesome5, AntDesign } from "@expo/vector-icons";
-import { getRequest, postRequest, saveData } from "../../helper";
+import { getRequest, postRequest, saveData} from "../../helper";
 const CustomTextInput = React.memo(
   ({
     iconName,
@@ -63,6 +63,7 @@ const Register = ({ navigation }) => {
   const [errorMessage, setErrorMessage] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [confirm, setConfirm] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -78,84 +79,86 @@ const Register = ({ navigation }) => {
   const goToSplashScreen = () => {
     navigation.navigate("Splash");
   };
-  const goToProfile =async () => {
-    if (firstName && lastName && email && password && confirm) {
-
-      if(firstName.length < 3 || lastName.length < 3){
-          setErrorMessage("Name cannot be less than three characters");  
-      }else{
+  const goToProfile = async () => {
+    if (firstName && lastName && email && phoneNumber&& password && confirm) {
+      if (firstName.length < 3 || lastName.length < 3) {
+        setErrorMessage("Name cannot be less than three characters");
+      } else {
         //validate email pattern
         const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-        if(!emailRegex.test(email)){
+        if (!emailRegex.test(email)) {
           setErrorMessage("Invalid Email format");
-          return
+          return;
         }
         //check if email already exists
-          try {
-            setLoading(true); // Start loading
-            let response = await getRequest(`auth/validateemail?email=${email}`)
-            if(response.success){
-              setErrorMessage("You already have an account, try to  log in");  
-            } else{
-              //check password
-                if(password.length < 8){
-                  setErrorMessage("password must be atleast 8 characters")
-                }else{
-                  //check if passwords are same
-                  if(password !== confirm){
-                    setErrorMessage("Password should be the same")
+        try {
+          setLoading(true); // Start loading
+          let response = await getRequest(`auth/validateemail?email=${email}`);
+          if (response.success) {
+            setErrorMessage("You already have an account, try to log in");
+          } else {
+            //check password
+            if (password.length < 8) {
+              setErrorMessage("password must be atleast 8 characters");
+            } else {
+              //check if passwords are same
+              if (password !== confirm) {
+                setErrorMessage("Password should be the same");
+              } else {
+                // store details locally, for usage in other pages
 
-                  }else{
-                      // store details locally, for usage in other pages
-
-                      const data = {
-                        firstName, lastName, email, password
-                      }
-                      await saveData('userdata',data)
-                      setTimeout(() => {
-                        navigation.navigate("WelcomeProfile");
-                      }, 2000);
-                  }
-
-                }
-                
+                const data = {
+                  firstName,
+                  lastName,
+                  email,
+                  password,
+                  phoneNumber
+                };
+                await saveData("userdata", data);
+                // console.log(data, "userdata")
+             
+                setTimeout(() => {
+                  navigation.navigate("WelcomeProfile");
+                }, 2000);
+              }
             }
-     
-          } catch (error) {
-            console.error(error)
           }
-          
-         
-
+        } catch (error) {
+          console.error(error);
+        }
       }
-    
     } else {
       setLoading(true);
       setErrorMessage("Please fill out all fields.");
-      
     }
 
     setTimeout(() => {
-          setLoading(false); //stop loading
-      }, 1000);
-
+      setLoading(false); //stop loading
+    }, 1000);
   };
-
 
   /* Button Component*/
   const ButtonComponent = Platform.select({
     ios: () => (
       <Pressable style={styles.buttonIOS} onPress={goToProfile}>
         <Text style={styles.buttonText}>
-          {loading ? <ActivityIndicator size="small" color="white" /> : "Register"}
+          {loading ? (
+            <ActivityIndicator size="small" color="white" />
+          ) : (
+            "Register"
+          )}
         </Text>
       </Pressable>
     ),
     android: () => (
       <Pressable style={styles.buttonIOS} onPress={goToProfile}>
-         <Text style={styles.buttonText}>
-          {loading ? <ActivityIndicator size="small" color="white" /> : "Register"}
+        <Text style={styles.buttonText}>
+          {loading ? (
+            <ActivityIndicator size="small" color="white" />
+          ) : (
+            "Register"
+          )}
         </Text>
       </Pressable>
     ),
@@ -174,10 +177,12 @@ const Register = ({ navigation }) => {
           </Pressable>
         </View>
       )}
-        {/* Success message */}
-        {successMessage !== "" && (
-        <View style={{...styles.errorContainer, backgroundColor: "green"}}>
-          <Text style={{...styles.errorText, color: "white"}}>{successMessage}</Text>
+      {/* Success message */}
+      {successMessage !== "" && (
+        <View style={{ ...styles.errorContainer, backgroundColor: "green" }}>
+          <Text style={{ ...styles.errorText, color: "white" }}>
+            {successMessage}
+          </Text>
         </View>
       )}
       <View style={styles.imageAndTextContainer}>
@@ -213,6 +218,12 @@ const Register = ({ navigation }) => {
           placeholder="Email Address"
           value={email}
           onChangeText={setEmail}
+        />
+        <CustomTextInput
+          iconName="phone"
+          placeholder="Phone Number"
+          value={phoneNumber}
+          onChangeText={setPhoneNumber}
         />
         <CustomTextInput
           iconName="lock"

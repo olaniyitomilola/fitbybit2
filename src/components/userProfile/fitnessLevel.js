@@ -23,6 +23,7 @@ const FitnessLevel = ({ navigation }) => {
 
   const handleOptionPress = (index) => {
     setSelectedOption(index);
+    // console.log("Selected option index:", index);
   };
   /* Navigations*/
   const goBack = () => {
@@ -33,6 +34,7 @@ const FitnessLevel = ({ navigation }) => {
     //add one to selected option and save
     userdata.currentFitness = selectedOption + 1;
     await saveData("userdata",userdata)
+    // console.log(userdata, "userdata2")
     navigation.navigate("Calculator");
   };
   /* Button Component*/

@@ -85,7 +85,7 @@ const [bmiDescriptor, setBmiDescriptor]= useState("");
             <View className="mt-4">
               {/* <Text style={styles.heading}>BMR : 18.4</Text> */}
               <Text className="leading-6 mt-2" style={styles.textBottom}>
-                {bmiDescriptor}
+                BMI: {bmiDescriptor}
                 {/* You’re slightly underweight but{"\n"}don’t worry, we are here to{" "}
                 {"\n"}help you!{"\n"} */}
               </Text>

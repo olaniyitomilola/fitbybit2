@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react";
-import { getRequest,postRequest } from "../../helper";
+import { postRequest, saveToken,getRequest } from "../../helper";
 import {
   View,
   Text,
@@ -82,48 +82,59 @@ const Login = ({ navigation }) => {
   };
   const goToUserprofile = () => {
     navigation.navigate("UserProfile");
-
-    
   };
 
-  const handleLogin = async () =>{
-    if (email && password) {
-      setLoading(true); // Start loading
-      setTimeout(async () => {
-        let body = {email,password}
-        try {
-          let response = await postRequest('auth/userlogin',body)
-
-          if(response.success){
-            setSuccessMessage("Login Successfully");
+  const handleLogin = async () => {
+    try {
+      if (email && password) {
+        setLoading(true); // Start loading
+        const userData = { email, password };
+  
+        // Call the postRequest function to send login data and receive response
+        const response = await postRequest("Auth/UserLogin", userData);
+        console.log(response, "login");
+  
+        if (response && response.success) {
+          const accessToken = response.data.accessToken;
+  
+          // Save access token to AsyncStorage
+          await saveToken(accessToken);
+        
+  
+          // Fetch user data using access token
+          const userDataResponse = await getRequest("Auth/GetUser", {
+            Authorization: `Bearer ${accessToken}`,
+          });
+          // console.log(userDataResponse, "userData");
+  
+          // Check if the response is successful
+          if (userDataResponse && userDataResponse.success) {
+            // Set success message and navigate to user profile
+            setSuccessMessage("Login Successful");
             setTimeout(() => {
-              //log access token
-              console.log(response.data.accessToken)
-              goToUserprofile()
+              navigation.navigate("UserProfile");
             }, 2000);
-
-          } else{
-            setErrorMessage(response.message)
+          } else {
+            // Set error message if user data retrieval fails
+            setErrorMessage(userDataResponse.message || "Failed to retrieve user data");
           }
-
-          setLoading(false); // Stop loading
-       
-        } catch (error) {
-          console.error(error)
+        } else {
+          // Set error message if login fails
+          setErrorMessage(response.message || "Login failed");
         }
-
-       
-      }, 1000);
   
-  
-    } else {
-     
-      setErrorMessage("Please fill out all fields.");
-      setTimeout(() => {
-       clearMessages();
-      }, 2000);
+        setLoading(false); // Stop loading
+      } else {
+        // Handle the case where email or password is missing
+        setErrorMessage("Please fill out all fields.");
+        setTimeout(clearMessages, 2000);
+      }
+    } catch (error) {
+      setErrorMessage(error.message || "An error occurred");
+      setLoading(false); // Stop loading
     }
-  }
+  };
+  
   const ButtonComponent = Platform.select({
     ios: () => (
       <Pressable style={styles.buttonIOS} onPress={handleLogin}>
@@ -147,7 +158,6 @@ const Login = ({ navigation }) => {
   //   .then(d=>console.log(d))
   // },[])
   return (
-
     <View style={styles.appContainer}>
       {/* Error message */}
       {errorMessage !== "" && (
