@@ -1,5 +1,5 @@
-import React from "react";
-import { View, Text, StyleSheet, Image } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Text, StyleSheet, Image, ActivityIndicator } from "react-native";
 import {
   createDrawerNavigator,
   DrawerContentScrollView,
@@ -9,56 +9,174 @@ import Goals from "./goals";
 import WorkoutPlans from "./workoutPlans";
 import WorkoutLibrary from "./workoutLibrary";
 import MealPlans from "./mealPlans";
+import Logout from "./logout";
+import { getRequest, saveData } from "../../../helper";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Drawer = createDrawerNavigator();
 
 const UserProfile = ({ navigation }) => {
+  const [userData, setUserData] = useState();
+  const [isLoading, setIsLoading] = useState(true);
+
   // Mock data for the "Client Data" section
   const clientData = [
-    { label: "Fitness level", value: "Intermediate" },
-    { label: "BMI", value: "23.6" },
-    { label: "Fitness goal", value: "Build muscle" },
-    { label: "Focus zones", value: "Full body" },
-    { label: "Starting weight", value: "68kg" },
-    { label: "Target weight", value: "70kg" },
-    { label: "Height", value: "169cm" },
+    { label: "Fitness level", value: "" },
+
+    { label: "Fitness goal", value: "" },
+    // { label: "Focus zones", value: "" },
+    { label: "Starting weight", value: "" },
+    { label: "Target weight", value: "" },
+    { label: "Height", value: "" },
+    // { label: "BMI", value: "" },
   ];
 
+  useEffect(() => {
+    const getUserProfile = async () => {
+      try {
+        const accessToken = await AsyncStorage.getItem("accessToken");
+
+        if (!accessToken) {
+          console.error("Access token not found.");
+          return;
+        }
+
+        const response = await getRequest("Auth/GetUser", null, {
+          Authorization: `Bearer ${accessToken}`,
+        });
+
+        setUserData(response.data);
+
+        // Save user data in AsyncStorage under the key "userdata"
+        await saveData("userdata", response.data);
+
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Error fetching user profile:", error);
+        setIsLoading(false);
+      }
+    };
+
+    getUserProfile();
+  }, []);
   return (
     <View style={{ flex: 1, padding: 1, marginTop: 10 }}>
-      <View style={styles.container}>
-        <View style={styles.imageContainer}>
-          <Image
-            source={require("../../../assets/Images/avatar.png")}
-            style={styles.image}
-          />
+      {isLoading ? (
+        <View style={{ flex: 1, justifyContent: "center", alignItems: "center", marginTop: 10}}>
+        <ActivityIndicator size="large" color="black" />
         </View>
-
-        <View style={styles.textContainer}>
-          <Text style={styles.text}>
-            Name: <Text style={styles.nestedText}>  Emmanuel Abu</Text>
-          </Text>
-          <Text style={styles.text}>
-            Email: <Text style={styles.nestedText}>  emmanuelabu@gmail.com</Text>
-          </Text>
-          <Text style={styles.text}>
-            Phone no: <Text style={styles.nestedText}>  09087654323</Text>
-          </Text>
-        </View>
-      </View>
-
-      <View style={{ marginTop: 10 }}>
-        <View style={styles.dataHeader}>
-          <Text style={styles.dataHeaderText}>Client Data</Text>
-        </View>
-
-        {clientData.map((item, index) => (
-          <View style={styles.imageAndTextContainer} key={index}>
-            <Text style={styles.dataText}>{item.label}</Text>
-            <Text style={styles.dataText}>{item.value}</Text>
+      ) : (
+        <View>
+          <View style={styles.container}>
+            <View style={styles.imageContainer}>
+              <Image
+                source={require("../../../assets/Images/avatar.png")}
+                style={styles.image}
+              />
+            </View>
+            <View style={styles.textContainer}>
+              <Text style={styles.text}>
+                Name:{" "}
+                <Text style={styles.nestedText}>
+                  {userData.firstName} {userData.lastName}
+                </Text>
+              </Text>
+              <Text style={styles.text}>
+                Email: <Text style={styles.nestedText}>{userData.email}</Text>
+              </Text>
+              <Text style={styles.text}>
+                Phone no:{" "}
+                <Text style={styles.nestedText}>{userData.phoneNumber}</Text>
+              </Text>
+            </View>
           </View>
-        ))}
-      </View>
+
+          <View style={{ marginTop: 10 }}>
+            <View style={styles.dataHeader}>
+              <Text style={styles.dataHeaderText}>Client Data</Text>
+            </View>
+
+            {clientData.map((item, index) => {
+              let value = "";
+              switch (item.label) {
+                case "Fitness level":
+                  switch (userData.currentFitness) {
+                    case 0:
+                      value = "New to Fitness";
+                      break;
+                    case 1:
+                      value = "Regular to Fitness";
+                      break;
+                    case 2:
+                      value = "Advanced in Fitness";
+                      break;
+                    case 3:
+                      value = "Expert in Fitness";
+                    default:
+                      value = "";
+                      break;
+                  }
+                  break;
+                // case "BMI":
+                //   value =
+                //     userHeight && userWeight
+                //       ? calculateBMI(userHeight, userWeight)
+                //       : "";
+                //   break;
+                case "Fitness goal":
+                  switch (userData.fitnessGoal) {
+                    case 0:
+                      value = "Lose Weight";
+                      break;
+                    case 1:
+                      value = "Maintain Current Weight";
+                      break;
+                    case 2:
+                      value = "Gain Muscle and Strength";
+                      break;
+                    case 3:
+                      value = "Build a Healthy Lifestyle";
+                    default:
+                      value = "";
+                      break;
+                  }
+                  break;
+                // case "Focus zones":
+                //   value = userData ? userData.focusZones : "";
+                //   break;
+                case "Starting weight":
+                  value = userData ? userData.startingWeight + " kg" : "";
+                  break;
+                case "Target weight":
+                  value = userData ? userData.targetWeight + " kg" : "";
+                  break;
+                case "Height":
+                  value = "" + " cm" || "";
+                  break;
+                default:
+                  value = "";
+                  break;
+              }
+
+              return (
+                <View style={styles.imageAndTextContainer} key={index}>
+                  <Text style={styles.dataText}>{item.label}</Text>
+                  <Text style={styles.dataText}>{value}</Text>
+                </View>
+              );
+            })}
+            {/* Calculate and display BMI */}
+            <View>
+              <Text
+                style={{ ...styles.dataText, marginTop: 8, padding: 10 }}
+                className="leading-7"
+              >
+                BMI
+              </Text>
+            </View>
+          </View>
+        </View>
+      )}
     </View>
   );
 };
@@ -85,6 +203,8 @@ const App = () => {
       <Drawer.Screen name="Workout Plans" component={WorkoutPlans} />
       <Drawer.Screen name="Workout Library" component={WorkoutLibrary} />
       <Drawer.Screen name="Nutrition" component={MealPlans} />
+      <Drawer.Screen name="Settings" component={Logout} />
+
 
     </Drawer.Navigator>
   );
@@ -116,7 +236,7 @@ const styles = StyleSheet.create({
   },
   text: {
     marginBottom: 5,
-    paddingLeft: 20
+    paddingLeft: 20,
   },
   nestedText: {
     fontWeight: "bold",

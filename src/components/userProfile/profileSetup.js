@@ -23,7 +23,10 @@ const ProfileSetup = ({ navigation }) => {
 
   const handleOptionPress = (index) => {
     setSelectedOption(index);
+    // console.log("Selected option index:", index);
+  
   };
+
   /* Navigations*/
   const goBack = () => {
     navigation.navigate("WelcomeProfile");

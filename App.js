@@ -14,6 +14,7 @@ import BMRProfile from "./src/components/userProfile/BMRProfile";
 import SetupCompleted from "./src/components/userProfile/setupCompleted";
 import Notification from "./src/components/userProfile/notification";
 import UserProfile from "./src/components/dashboard/userprofile";
+import LoaderPage from "./src/screens/LoaderPage";
 
 const Stack = createStackNavigator();
 
@@ -22,12 +23,13 @@ const App = () => {
     <>
       <NavigationContainer>
         <Stack.Navigator
-          initialRouteName="Splash"
+          initialRouteName="LoaderPage"
           screenOptions={{
             headerShown: false,
           }}
         >
           <Stack.Screen name="Splash" component={SplashScreen} />
+          <Stack.Screen name="LoaderPage" component={LoaderPage} />
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="Register" component={RegisterScreen} />
           <Stack.Screen name="ResetPassword" component={ResetPassword} />

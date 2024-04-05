@@ -1,6 +1,12 @@
 import React, { useEffect, useState } from "react";
 
-import { getRequest, postRequest, retrieveData,saveData } from "../../../helper";
+import {
+  getRequest,
+  postRequest,
+  retrieveData,
+  saveData,
+  saveToken,
+} from "../../../helper";
 import {
   View,
   Text,
@@ -9,10 +15,16 @@ import {
   Platform,
   Image,
 } from "react-native";
-import { MaterialIcons } from "@expo/vector-icons";
+import { MaterialIcons, AntDesign } from "@expo/vector-icons";
 
 const Notification = ({ navigation }) => {
   const [userData, setUserData] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const clearMessages = () => {
+    setErrorMessage("");
+    setSuccessMessage("");
+  };
 
   /* Navigations*/
   const goToDashboard = async () => {
@@ -21,27 +33,44 @@ const Notification = ({ navigation }) => {
     //get back token and save locally on device
     //delete the user data
 
-    try{
+    try {
       //confirm the data has nbeen loaded first
-      if(userData){
-        const req = await postRequest("/createuser",userData);
+      if (userData) {
+        // console.log(userData, "userDataNotifi");
+        const response = await postRequest(
+          "Auth/CreateUser",
+          userData,
+          accessToken
+        );
+        // console.log(response.data, "response");
+        const accessToken = response.data.accessToken;
+        await saveToken(accessToken);
+        // console.log(accessToken, "tokenRegister")
 
-        const res = await req.json()
-      }else{
-        console.log("data yet to be loaded")
+        if (response.success) {
+          setSuccessMessage(response.message);
+
+          // Navigate to the user profile screen
+          setTimeout(() => {
+            navigation.navigate("UserProfile");
+          }, 2000);
+        } else {
+          if (response.errors) {
+            const errors = Object.values(response.errors);
+            setErrorMessage(errors.flat());
+          }
+        }
       }
-    }catch(error){
-      console.error(error)
+   
+    } catch (error) {
+      console.error(error);
     }
 
-
-
-    navigation.navigate("UserProfile");
+    // navigation.navigate("UserProfile");
   };
-  useEffect(()=>{
-    retrieveData("userdata")
-    .then(data=>setUserData(data))
-  },[])
+  useEffect(() => {
+    retrieveData("userdata").then((data) => setUserData(data));
+  }, []);
   /* Button Component*/
   const ButtonComponent = Platform.select({
     ios: () => (
@@ -58,15 +87,34 @@ const Notification = ({ navigation }) => {
 
   return (
     <View style={styles.appContainer}>
+      {/* Error message */}
+      {errorMessage !== "" && (
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>{errorMessage}</Text>
+          <Pressable onPress={clearMessages}>
+            <Text style={styles.clearErrorText}>
+              <AntDesign name="close" size={20} color="black" />
+            </Text>
+          </Pressable>
+        </View>
+      )}
+      {/* Success message */}
+      {successMessage !== "" && (
+        <View style={{ ...styles.errorContainer, backgroundColor: "green" }}>
+          <Text style={{ ...styles.errorText, color: "white" }}>
+            {successMessage}
+          </Text>
+        </View>
+      )}
       <View style={styles.bgDiv} className="mt-4">
-      <View style={styles.imageWrapper}>
+        <View style={styles.imageWrapper}>
           <Image
             source={require("../../../assets/Images/notification.png")}
             style={styles.image}
           />
         </View>
       </View>
-       <View style={styles.textContent}>
+      <View style={styles.textContent}>
         <Text style={styles.heading}>Instant Notifications</Text>
         <Text style={styles.subHeading} className="leading-6 mt-2">
           Get timely updates to keep you on{"\n"} track, monitor your
@@ -91,11 +139,27 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     backgroundColor: "#fff",
   },
+  errorContainer: {
+    backgroundColor: "#FFCCCC",
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 10,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  errorText: {
+    color: "#FF0000",
+    flex: 1,
+  },
+  clearErrorText: {
+    color: "#FF0000",
+  },
   bgDiv: {
     backgroundColor: "#0077CA",
     paddingHorizontal: 20, // Adjust padding as needed
     paddingTop: 20,
-    paddingBottom: 20
+    paddingBottom: 20,
   },
   imageWrapper: {
     alignItems: "center",
@@ -130,7 +194,7 @@ const styles = StyleSheet.create({
     fontSize: Platform.OS === "ios" ? 20 : 18,
     fontWeight: "500",
     color: "#1E1E1E8F",
-    textAlign: "center"
+    textAlign: "center",
   },
   textBottom: {
     fontSize: Platform.OS === "ios" ? 20 : 18,
