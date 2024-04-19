@@ -133,6 +133,10 @@ const Login = ({ navigation }) => {
       setErrorMessage(error.message || "An error occurred");
       setLoading(false); // Stop loading
     }
+    setTimeout(()=>{
+      clearMessages()
+
+    },2000)
   };
   
   const ButtonComponent = Platform.select({
@@ -206,8 +210,8 @@ const Login = ({ navigation }) => {
           onChangeText={setPassword}
         />
       </View>
-
-      <View style={styles.orContainer}>
+      {/* Remove SSO  option */}
+      {/* <View style={styles.orContainer}>
         <Text style={styles.orText}>OR</Text>
 
         <View style={styles.imageRow}>
@@ -221,7 +225,7 @@ const Login = ({ navigation }) => {
             style={styles.image}
           />
         </View>
-      </View>
+      </View> */}
 
       <View style={styles.divBottom}>
         <ButtonComponent />
