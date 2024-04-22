@@ -37,31 +37,21 @@ const WorkoutPlans = ({ navigation }) => {
   ];
   const typeData = [
     {
-      name: "Cardio",
+      name: "Lose Weight",
       id: 1,
     },
     {
-      name: "Arms",
+      name: "Maintain Current Weight",
       id: 2,
     },
     {
-      name: "Legs",
+      name: "Gain Muscle And Strenght",
       id: 3,
     },
-  ];
-  const locationData = [
     {
-      name: "Home",
-      id: 1,
-    },
-    {
-      name: "Gym",
-      id: 2,
-    },
-    {
-      name: "Officer",
-      id: 3,
-    },
+      name: "Build A Healthy Lifstyle",
+      id: 4,
+    }
   ];
 
   /* Button Component*/
@@ -92,36 +82,10 @@ const WorkoutPlans = ({ navigation }) => {
   });
 
   return (
-    <View style={{ flex: 1, padding: 15, marginTop: 10 }}>
-      <View>
-        {workoutPlanData.map((item) => (
-          <View key={item.id} style={styles.imageAndTextContainer}>
-            <Image source={item.image} style={styles.image} />
-            <View style={styles.textContainer}>
-              <Text style={styles.heading}>{item.label}</Text>
-            </View>
-            <Text style={{ ...styles.heading, marginTop: 5 }}>
-              {" "}
-              <MaterialIcons
-                name="keyboard-arrow-right"
-                size={28}
-                color="#1E1E1E8F"
-              />
-            </Text>
-          </View>
-        ))}
-      </View>
+    <View style={{ flex: 1, padding: 10, marginTop: 8 }}>
 
-      <View className="mt-4">
-        <ButtonComponent />
-      </View>
-
-      <View className="mt-8">
-        <Text style={styles.heading2}>Workout Library</Text>
-      </View>
-
-      {/* Use DropDownPicker for selecting level */}
-      <RNPickerSelect
+        {/* Use DropDownPicker for selecting level */}
+        <RNPickerSelect
         onValueChange={(value) => console.log(value)}
         items={LevelData.map((lev) => ({
           label: lev.name,
@@ -142,26 +106,39 @@ const WorkoutPlans = ({ navigation }) => {
         }))}
         style={dropdownStyles}
         placeholder={{
-          label: "Select Cardio",
+          label: "Select Category",
           value: null,
         }}
       />
       {/* Use DropDownPicker for selecting type */}
-      <RNPickerSelect
-        onValueChange={(value) => console.log(value)}
-        items={locationData.map((loc) => ({
-          label: loc.name,
-          value: loc.id,
-        }))}
-        style={dropdownStyles}
-        placeholder={{
-          label: "Select Location",
-          value: null,
-        }}
-      />
       <View className="mt-4">
         <WorkoutButton />
       </View>
+      {/* <View>
+        {workoutPlanData.map((item) => (
+          <View key={item.id} style={styles.imageAndTextContainer}>
+            <Image source={item.image} style={styles.image} />
+            <View style={styles.textContainer}>
+              <Text style={styles.heading}>{item.label}</Text>
+            </View>
+            <Text style={{ ...styles.heading, marginTop: 5 }}>
+              {" "}
+              <MaterialIcons
+                name="keyboard-arrow-right"
+                size={28}
+                color="#1E1E1E8F"
+              />
+            </Text>
+          </View>
+        ))}
+      </View> */}
+
+      {/* <View className="mt-4">
+        <ButtonComponent />
+      </View> */}
+
+
+    
     </View>
   );
 };

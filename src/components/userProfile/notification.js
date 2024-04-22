@@ -42,10 +42,11 @@ const Notification = ({ navigation }) => {
           userData,
           accessToken
         );
-        // console.log(response.data, "response");
+        console.log(response.data, "response");
         const accessToken = response.data.accessToken;
+        
         await saveToken(accessToken);
-        // console.log(accessToken, "tokenRegister")
+        console.log(accessToken, "tokenRegister")
 
         if (response.success) {
           setSuccessMessage(response.message);
