@@ -1,9 +1,46 @@
-import React, { useState } from "react";
-import { View, Text, StyleSheet, Image, TextInput,ScrollView } from "react-native";
-import { Entypo,AntDesign } from "@expo/vector-icons";
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  TextInput,
+  ScrollView,
+  ActivityIndicator,
+  Pressable,
+} from "react-native";
+import { Entypo, AntDesign } from "@expo/vector-icons";
+import { getRequest, saveData } from "../../../helper";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
 const WorkoutLibrary = ({ navigation }) => {
+  const [workoutData, setWorkoutData] = useState();
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const getAllWorkouts = async () => {
+      try {
+        const accessToken = await AsyncStorage.getItem("accessToken");
+
+        const response = await getRequest("Workout/GetAllWorkOuts", null, {
+          Authorization: `Bearer ${accessToken}`,
+        });
+  
+        setWorkoutData(response.data);
+
+        // Save workout data in AsyncStorage under the key "userdata"
+        await saveData("workoutdata", response.data);
+
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Error fetching user profile:", error);
+        setIsLoading(false);
+      }
+    };
+
+    getAllWorkouts();
+  }, []);
   const WorkoutLibraryData = [
     {
       label: "Fitness at Home",
@@ -39,38 +76,66 @@ const WorkoutLibrary = ({ navigation }) => {
 
   return (
     <View style={{ flex: 1, marginTop: 30 }}>
-        <ScrollView  showsVerticalScrollIndicator={false}>
-      <View style={styles.searchContainer}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search workout plans"
-          placeholderTextColor="#1E1E1E8F"
-        />
-      </View>
-      <View className="mt-2">
-        {WorkoutLibraryData.map((item) => (
-          <View key={item.id} style={styles.imageAndTextContainer}>
-            <View style={styles.imageContainer}>
-              <Image source={item.image} style={styles.image} />
-              <View style={styles.overlay} />
-            </View>
-            <View style={styles.textContainer}>
-              <Text style={styles.heading}>{item.label}</Text>
-              <Text style={styles.heading2}>
-                <Entypo name="dot-single" size={14} color="white" />
-                {item.number}
-              </Text>
-            </View>
-            
+      {isLoading ? (
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            marginTop: 10,
+          }}
+        >
+          <ActivityIndicator size="large" color="black" />
+        </View>
+      ) : (
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <View style={styles.searchContainer}>
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search workout plans"
+              placeholderTextColor="#1E1E1E8F"
+            />
           </View>
-        ))}
-      </View>
-      <View style={styles.searchButton}>
-              <Text style={styles.searchButtonText}>
+          <View className="mt-2">
+
+            {workoutData?.map((workout, index) => (
+              <Pressable
+                key={index}
+                onPress={() => {
+                  // Navigate to the new page and pass category and exercises data
+                  navigation.navigate("ExercisePage", {
+                    workoutName: workout.workoutName,
+                    
+                  });
+                }}
+              >
+                <View style={styles.imageAndTextContainer}>
+                  <View style={styles.imageContainer}>
+                    <Image
+                      source={require("../../../assets/Images/cardio.png")}
+                      style={styles.image}
+                    />
+                    <View style={styles.overlay} />
+                  </View>
+                  <View style={styles.textContainer}>
+                    <Text style={styles.heading}>{workout.workoutName}</Text>
+                   
+                  </View>
+                </View>
+              </Pressable>
+            ))}
+          </View>
+          {/* // <Text style={styles.heading2}>
+                  //   <Entypo name="dot-single" size={14} color="white" />
+                  //   {item.number}
+                  // </Text> */}
+          {/* <View style={styles.searchButton}>
+            <Text style={styles.searchButtonText}>
               <AntDesign name="plus" size={18} color="white" />
-              </Text>
-            </View>
-            </ScrollView>
+            </Text>
+          </View> */}
+        </ScrollView>
+      )}
     </View>
   );
 };
@@ -125,14 +190,14 @@ const styles = StyleSheet.create({
   searchButton: {
     backgroundColor: "#0077CA",
     padding: 10,
-    borderRadius: 50, 
+    borderRadius: 50,
     marginLeft: 10,
-    width: 50, 
+    width: 50,
     height: 50,
-    justifyContent: "center", 
+    justifyContent: "center",
     alignItems: "center",
     bottom: "38%",
-    left: "75%"
+    left: "75%",
   },
   searchButtonText: {
     color: "white",

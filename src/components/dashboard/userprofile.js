@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, Image, ActivityIndicator } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  ActivityIndicator,
+  Pressable,
+} from "react-native";
 import {
   createDrawerNavigator,
   DrawerContentScrollView,
@@ -10,14 +17,32 @@ import WorkoutPlans from "./workoutPlans";
 import WorkoutLibrary from "./workoutLibrary";
 import MealPlans from "./mealPlans";
 import Logout from "./logout";
-import { getRequest, saveData } from "../../../helper";
+import { getRequest, saveData, getBMIValue } from "../../../helper";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import LogoutModal from "./logoutModal";
 
 const Drawer = createDrawerNavigator();
 
 const UserProfile = ({ navigation }) => {
   const [userData, setUserData] = useState();
   const [isLoading, setIsLoading] = useState(true);
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const confirmLogout = () => {
+    // Perform logout action here
+    // For example, clear user data, navigate to login screen, etc.
+    // After logout, navigate to the login screen
+    navigation.navigate("Login");
+    setModalVisible(false);
+  };
+
+  const cancelLogout = () => {
+    setModalVisible(false);
+  };
+
+  const goToEdit = () => {
+    navigation.navigate("EditProfile");
+  };
 
   // Mock data for the "Client Data" section
   const clientData = [
@@ -28,7 +53,7 @@ const UserProfile = ({ navigation }) => {
     { label: "Starting weight", value: "" },
     { label: "Target weight", value: "" },
     { label: "Height", value: "" },
-    // { label: "BMI", value: "" },
+    { label: "BMI", value: "" },
   ];
 
   useEffect(() => {
@@ -59,11 +84,32 @@ const UserProfile = ({ navigation }) => {
 
     getUserProfile();
   }, []);
+
+  const WorkoutButton = Platform.select({
+    ios: () => (
+      <Pressable style={styles.buttonIOS}>
+        <Text style={styles.buttonText}  onPress={() => setModalVisible(true)}>Log out</Text>
+      </Pressable>
+    ),
+    android: () => (
+      <Pressable style={styles.buttonIOS}>
+        <Text style={styles.buttonText}  onPress={() => setModalVisible(true)}>Log out</Text>
+      </Pressable>
+    ),
+  });
+
   return (
     <View style={{ flex: 1, padding: 1, marginTop: 10 }}>
       {isLoading ? (
-        <View style={{ flex: 1, justifyContent: "center", alignItems: "center", marginTop: 10}}>
-        <ActivityIndicator size="large" color="black" />
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            marginTop: 10,
+          }}
+        >
+          <ActivityIndicator size="large" color="black" />
         </View>
       ) : (
         <View>
@@ -91,7 +137,16 @@ const UserProfile = ({ navigation }) => {
             </View>
           </View>
 
-          <View style={{ marginTop: 10 }}>
+          <View>
+            <Text
+              style={{ ...styles.dataText, color: "#0077CA" }}
+              className="px-3"
+              onPress={goToEdit}
+            >
+              Edit Profile
+            </Text>
+          </View>
+          <View style={{ marginTop: 15 }}>
             <View style={styles.dataHeader}>
               <Text style={styles.dataHeaderText}>Client Data</Text>
             </View>
@@ -117,12 +172,12 @@ const UserProfile = ({ navigation }) => {
                       break;
                   }
                   break;
-                // case "BMI":
-                //   value =
-                //     userHeight && userWeight
-                //       ? calculateBMI(userHeight, userWeight)
-                //       : "";
-                //   break;
+                case "BMI":
+                  value =
+                    userData?.height && userData?.startingWeight
+                      ? getBMIValue(userData?.height, userData?.startingWeight)
+                      : "";
+                  break;
                 case "Fitness goal":
                   switch (userData.fitnessGoal) {
                     case 0:
@@ -151,7 +206,7 @@ const UserProfile = ({ navigation }) => {
                   value = userData ? userData.targetWeight + " kg" : "";
                   break;
                 case "Height":
-                  value = "" + " cm" || "";
+                  value = userData ? userData.height + " kg" : "";
                   break;
                 default:
                   value = "";
@@ -165,15 +220,14 @@ const UserProfile = ({ navigation }) => {
                 </View>
               );
             })}
-            {/* Calculate and display BMI */}
-            <View>
-              <Text
-                style={{ ...styles.dataText, marginTop: 8, padding: 10 }}
-                className="leading-7"
-              >
-                BMI
-              </Text>
+            <View className="mt-12">
+              <WorkoutButton />
             </View>
+            <LogoutModal
+        visible={modalVisible}
+        onConfirm={confirmLogout}
+        onCancel={cancelLogout}
+      />
           </View>
         </View>
       )}
@@ -203,9 +257,6 @@ const App = () => {
       <Drawer.Screen name="Workout Plans" component={WorkoutPlans} />
       <Drawer.Screen name="Workout Library" component={WorkoutLibrary} />
       <Drawer.Screen name="Nutrition" component={MealPlans} />
-      <Drawer.Screen name="Settings" component={Logout} />
-
-
     </Drawer.Navigator>
   );
 };
@@ -261,6 +312,19 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: "#262626",
     fontWeight: "bold",
+  },
+  buttonIOS: {
+    padding: 18,
+    borderRadius: 28,
+    borderColor: "#0077CA",
+    borderWidth: 2, 
+    alignItems: "center",
+    marginTop: 10,
+  },
+  buttonText: {
+    color: "#0077CA",
+    fontWeight: "700",
+    fontSize: 20,
   },
 });
 
