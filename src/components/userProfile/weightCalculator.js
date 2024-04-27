@@ -94,7 +94,7 @@ const WeightCalculator = ({ navigation }) => {
           userdata.age =  age;
           userdata.weight = weight;
           userdata.height = height;
-        //   await saveData("userdata",userdata)
+          await saveData("userdata",userdata)
         //  console.log(userdata, "userdata3")
           navigation.navigate("BMR");
     }else{
