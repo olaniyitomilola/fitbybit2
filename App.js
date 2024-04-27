@@ -15,6 +15,8 @@ import SetupCompleted from "./src/components/userProfile/setupCompleted";
 import Notification from "./src/components/userProfile/notification";
 import UserProfile from "./src/components/dashboard/userprofile";
 import LoaderPage from "./src/screens/LoaderPage";
+import ExercisePage from "./src/components/dashboard/exercisesPage";
+import EditProfile from "./src/components/dashboard/editProfile";
 
 const Stack = createStackNavigator();
 
@@ -45,6 +47,10 @@ const App = () => {
           <Stack.Screen name="Completed" component={SetupCompleted} />
           <Stack.Screen name="Notification" component={Notification} />
           <Stack.Screen name="UserProfile" component={UserProfile} />
+          <Stack.Screen name="ExercisePage" component={ExercisePage} />
+          <Stack.Screen name="EditProfile" component={EditProfile} />
+
+
 
         </Stack.Navigator>
       </NavigationContainer>

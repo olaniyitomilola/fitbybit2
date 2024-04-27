@@ -104,7 +104,7 @@ export const saveToken = async (accessToken) => {
   try {
     if (accessToken !== undefined) {
       await AsyncStorage.setItem("accessToken", accessToken);
-      console.log(accessToken, "tokenHelper")
+      // console.log(accessToken, "tokenHelper")
       // console.log("Token saved successfully.");
     } else {
       console.error("Token value is undefined.");
@@ -159,4 +159,29 @@ export const calculateBMI = (height, weight) => {
   }
 
   return ` ${BMI.toFixed(2)}\n${description}`;
+};
+
+
+//getbmi result 
+
+export const getBMIValue = (height, weight) => {
+  // Convert height from centimeters to meters
+  const heightInMeters = height / 100;
+
+  // Calculate BMI
+  const BMI = weight / (heightInMeters * heightInMeters);
+
+  // Determine BMI category based on value
+  let category;
+  if (BMI < 18.5) {
+    category = "underweight";
+  } else if (BMI >= 18.5 && BMI < 24.9) {
+    category = "normal weight";
+  } else if (BMI >= 25 && BMI < 29.9) {
+    category = "overweight";
+  } else {
+    category = "obese";
+  }
+
+  return ` ${BMI.toFixed(2)}`;
 };

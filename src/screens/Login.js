@@ -92,7 +92,7 @@ const Login = ({ navigation }) => {
   
         // Call the postRequest function to send login data and receive response
         const response = await postRequest("Auth/UserLogin", userData);
-        console.log(response, "login");
+        // console.log(response, "login");
   
         if (response && response.success) {
           const accessToken = response.data.accessToken;
