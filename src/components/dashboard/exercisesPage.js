@@ -17,7 +17,7 @@ const ExercisePage = ({ route, navigation }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   const handleComplete = ()=>{
-    
+
   }
 
   const ButtonComponent = Platform.select({
@@ -172,6 +172,7 @@ const ExercisePage = ({ route, navigation }) => {
                 );
               })}
             </View>
+            
           )}
         </View>
       </ScrollView>
