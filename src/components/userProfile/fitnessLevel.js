@@ -17,7 +17,6 @@ const FitnessLevel = ({ navigation }) => {
   const options = [
     "New to Fitness",
     "Regular to Fitness",
-    "Advanced in Fitness",
     "Expert in Fitness",
   ];
 

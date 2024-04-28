@@ -58,13 +58,7 @@ const WorkoutLibrary = ({ navigation }) => {
         </View>
       ) : (
         <ScrollView showsVerticalScrollIndicator={false}>
-          <View style={styles.searchContainer}>
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Search workout plans"
-              placeholderTextColor="#1E1E1E8F"
-            />
-          </View>
+          
           <View className="mt-2">
 
             {workoutData?.map((workout, index) => (

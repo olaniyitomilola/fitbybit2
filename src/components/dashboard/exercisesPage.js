@@ -16,6 +16,27 @@ const ExercisePage = ({ route, navigation }) => {
   const [exercises, setExercises] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const handleComplete = ()=>{
+    
+  }
+
+  const ButtonComponent = Platform.select({
+    ios: () => (
+      <Pressable style={styles.buttonIOS} onPress={handleComplete}>
+        <Text style={styles.buttonText}>
+          Mark as Completed
+        </Text>
+      </Pressable>
+    ),
+    android: () => (
+      <Pressable style={styles.buttonIOS} onPress={handleComplete}>
+        <Text style={styles.buttonText}>
+          Mark as Completed
+        </Text>
+      </Pressable>
+    ),
+  });
+
   useEffect(() => {
     const fetchExercises = async () => {
       try {
