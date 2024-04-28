@@ -19,6 +19,10 @@ const CustomTextInput = React.memo(
     value,
     ...rest
   }) => {
+    const handleTextChange = (text) => {
+      console.log("email:", text); 
+      onChangeText(text);
+    };
  
     return useMemo(
       () => (
@@ -33,6 +37,7 @@ const CustomTextInput = React.memo(
             style={styles.textInput}
             placeholder={placeholder}
             placeholderTextColor="#1E1E1E8F"
+            onChangeText={handleTextChange}
             {...rest}
           />
         </View>
@@ -43,8 +48,9 @@ const CustomTextInput = React.memo(
 );
 
 const ResetPassword = ({ navigation }) => {
+  const [email, setEmail] = useState("");
     // navigation link
-  const [email,setEmail] = useState("")
+  
   
   const goBack = () => {
     if(email){
@@ -89,7 +95,10 @@ const ResetPassword = ({ navigation }) => {
       </View>
 
       <View style={{ marginTop: 20 }}>
-        <CustomTextInput value={email} onChangeText={setEmail} iconName="envelope" placeholder="Email Address" />
+        <CustomTextInput iconName="envelope" placeholder="Email Address" 
+        value={email}
+        onChangeText={setEmail}
+        />
       </View>
       <View style={styles.divBottom}>
         <ButtonComponent />
@@ -154,7 +163,18 @@ const styles = StyleSheet.create({
   icon: {
     marginRight: 5,
   },
-
+  divBottom: Platform.select({
+    ios: {
+      flex: 1,
+      justifyContent: "flex-end",
+      paddingBottom: 40,
+    },
+    android: {
+      flex: 1,
+      justifyContent: "flex-end",
+      paddingBottom: 20,
+    },
+  }),
   buttonIOS: {
     backgroundColor: "#0077CA",
     padding: 18,
@@ -167,19 +187,6 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     fontSize: 20,
   },
-  divBottom: Platform.select({
-    ios: {
-      flex: 1,
-      justifyContent: "flex-end",
-      paddingBottom: 20,
-    },
-    android: {
-      flex: 1,
-      justifyContent: "flex-start",
-      paddingTop: 30,
-    },
-  })
- 
 });
 
 export default ResetPassword;
