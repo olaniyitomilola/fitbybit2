@@ -222,7 +222,7 @@ const UserProfile = ({ navigation }) => {
                 </View>
               );
             })}
-            <View className="mt-12">
+            <View>
               <WorkoutButton />
             </View>
             <LogoutModal
@@ -328,6 +328,7 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     fontSize: 20,
   },
+  
 });
 
 export default App;

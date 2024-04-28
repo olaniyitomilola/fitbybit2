@@ -9,7 +9,6 @@ import {
   ActivityIndicator,
   Pressable,
 } from "react-native";
-import { Entypo, AntDesign } from "@expo/vector-icons";
 import { getRequest, saveData } from "../../../helper";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
