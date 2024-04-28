@@ -18,6 +18,10 @@ const CustomTextInput = React.memo(
     value,
     ...rest
   }) => {
+    const handleTextChange = (text) => {
+      console.log("email:", text); 
+      onChangeText(text);
+    };
  
     return useMemo(
       () => (
@@ -32,6 +36,7 @@ const CustomTextInput = React.memo(
             style={styles.textInput}
             placeholder={placeholder}
             placeholderTextColor="#1E1E1E8F"
+            onChangeText={handleTextChange}
             {...rest}
           />
         </View>
@@ -42,6 +47,7 @@ const CustomTextInput = React.memo(
 );
 
 const ResetPassword = ({ navigation }) => {
+  const [email, setEmail] = useState("");
     // navigation link
   const goBack = () => {
     navigation.navigate("Login");
@@ -77,7 +83,10 @@ const ResetPassword = ({ navigation }) => {
       </View>
 
       <View style={{ marginTop: 20 }}>
-        <CustomTextInput iconName="envelope" placeholder="Email Address" />
+        <CustomTextInput iconName="envelope" placeholder="Email Address" 
+        value={email}
+        onChangeText={setEmail}
+        />
       </View>
 
 
@@ -144,7 +153,18 @@ const styles = StyleSheet.create({
   icon: {
     marginRight: 5,
   },
-
+  divBottom: Platform.select({
+    ios: {
+      flex: 1,
+      justifyContent: "flex-end",
+      paddingBottom: 40,
+    },
+    android: {
+      flex: 1,
+      justifyContent: "flex-end",
+      paddingBottom: 20,
+    },
+  }),
   buttonIOS: {
     backgroundColor: "#0077CA",
     padding: 18,
@@ -156,9 +176,6 @@ const styles = StyleSheet.create({
     color: "white",
     fontWeight: "700",
     fontSize: 20,
-  },
-  divBottom: {
-    marginTop: 486,
   },
 });
 
