@@ -239,29 +239,7 @@ const Register = ({ navigation }) => {
         />
       </View>
       <View style={styles.divBottom}>
-        <View style={{ alignItems: "center" }}>
-          <Text style={styles.orText}>OR</Text>
-
-          <View>
-            <View style={styles.imageRow}>
-              <Image
-                source={require("../../assets/Images/apple-icon.png")}
-                style={styles.image}
-              />
-              <View style={styles.imageSpacer} />
-              <Image
-                source={require("../../assets/Images/google-icon.png")}
-                style={styles.image}
-              />
-            </View>
-          </View>
-          <View style={{ padding: 0 }}>
-            <Text style={styles.termsText}>
-              By signing up, you agree to Fit by Bit’s {"\n"}
-              <Text style={styles.subTerms}>Terms & Privacy Policy</Text>
-            </Text>
-          </View>
-        </View>
+       
 
         <View>
           <ButtonComponent />

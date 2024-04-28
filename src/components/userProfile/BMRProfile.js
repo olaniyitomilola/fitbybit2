@@ -48,7 +48,10 @@ const [bmiDescriptor, setBmiDescriptor]= useState("");
 
 
   useEffect(()=>{
-    retrieveData('userdata').then((data)=> setBmiDescriptor(calculateBMI(data.height, data.weight)))
+    retrieveData('userdata').then((data)=>{
+      console.log(data)
+      setBmiDescriptor(calculateBMI(data.height, data.weight))
+    } )
   },[])
 
   /* Navigations*/

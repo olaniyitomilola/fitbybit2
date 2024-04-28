@@ -8,6 +8,7 @@ import {
   Platform,
 } from "react-native";
 import { FontAwesome5, MaterialIcons } from "@expo/vector-icons";
+import { removeData, saveData } from "../../helper";
 
 const CustomTextInput = React.memo(
   ({
@@ -49,11 +50,22 @@ const CustomTextInput = React.memo(
 const ResetPassword = ({ navigation }) => {
   const [email, setEmail] = useState("");
     // navigation link
+  
+  
   const goBack = () => {
+    if(email){
+      removeData("email")
+    }
     navigation.navigate("Login");
   };
+
   const resetLink = () =>{
-    navigation.navigate("ResetConfirmation");
+    console.log(email)
+    if(email){
+      saveData("email",email)
+      navigation.navigate("ResetConfirmation");
+
+    }
   }
     /* Button Component*/
   const ButtonComponent = Platform.select({
@@ -88,8 +100,6 @@ const ResetPassword = ({ navigation }) => {
         onChangeText={setEmail}
         />
       </View>
-
-
       <View style={styles.divBottom}>
         <ButtonComponent />
        

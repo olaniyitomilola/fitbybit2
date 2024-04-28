@@ -1,5 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-const BASE_URL = "https://adeahmed-001-site1.ktempurl.com/api";
+const BASE_URL = "http://fitbybitapiservice-dev.eba-9vska3xm.us-east-1.elasticbeanstalk.com/api";
 //const Base2 = "https://dummy.restapiexample.com/api/v1"
 
 // Helper function for making GET requests
@@ -119,9 +119,11 @@ export const saveToken = async (accessToken) => {
 export const calculateBMI = (height, weight) => {
   // Convert height from centimeters to meters
   const heightInMeters = height / 100;
-
+  console.log(height,weight,heightInMeters)
   // Calculate BMI
   const BMI = weight / (heightInMeters * heightInMeters);
+
+  console.log(BMI)
 
   // Determine BMI category based on value
   let category;
