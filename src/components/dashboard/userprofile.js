@@ -59,6 +59,7 @@ const UserProfile = ({ navigation }) => {
   ];
 
   useEffect(() => {
+    setIsLoading(true)
     const getUserProfile = async () => {
       try {
         const accessToken = await AsyncStorage.getItem("accessToken");
@@ -158,14 +159,11 @@ const UserProfile = ({ navigation }) => {
               switch (item.label) {
                 case "Fitness level":
                   switch (userData.currentFitness) {
-                    case 0:
+                    case 1:
                       value = "New to Fitness";
                       break;
-                    case 1:
-                      value = "Regular to Fitness";
-                      break;
                     case 2:
-                      value = "Advanced in Fitness";
+                      value = "Regular to Fitness";
                       break;
                     case 3:
                       value = "Expert in Fitness";
@@ -182,16 +180,16 @@ const UserProfile = ({ navigation }) => {
                   break;
                 case "Fitness goal":
                   switch (userData.fitnessGoal) {
-                    case 0:
+                    case 1:
                       value = "Lose Weight";
                       break;
-                    case 1:
+                    case 2:
                       value = "Maintain Current Weight";
                       break;
-                    case 2:
+                    case 3:
                       value = "Gain Muscle and Strength";
                       break;
-                    case 3:
+                    case 4:
                       value = "Build a Healthy Lifestyle";
                     default:
                       value = "";

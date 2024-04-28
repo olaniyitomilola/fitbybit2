@@ -16,7 +16,7 @@ export const getRequest = async (url, headers = {}) => {
       },
     });
     // console.log(accessToken, "tokenHelper")
-
+    console.log(response)
     // console.log(accessToken, "token")
     const data = await response.json();
     return data;
@@ -48,6 +48,28 @@ export const postRequest = async (url, body, accessToken, headers = {}) => {
     throw error;
   }
 };
+
+export const putRequest = async (url, body, accessToken, headers = {}) => {
+  try {
+    const response = await fetch(`${BASE_URL}/${url}`, {
+      method: "PUT",
+      headers: {
+        ...headers,
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(body),
+    });
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error(error);
+    // console.error('Error while making POST request:', error);
+    throw error;
+  }
+};
+
 export const saveData = async (key, value) => {
   try {
     const jsonValue = JSON.stringify(value);
