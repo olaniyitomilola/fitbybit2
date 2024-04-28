@@ -79,8 +79,6 @@ const ResetPassword = ({ navigation }) => {
       <View style={{ marginTop: 20 }}>
         <CustomTextInput iconName="envelope" placeholder="Email Address" />
       </View>
-
-
       <View style={styles.divBottom}>
         <ButtonComponent />
        
@@ -157,9 +155,19 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     fontSize: 20,
   },
-  divBottom: {
-    marginTop: 486,
-  },
+  divBottom: Platform.select({
+    ios: {
+      flex: 1,
+      justifyContent: "flex-end",
+      paddingBottom: 20,
+    },
+    android: {
+      flex: 1,
+      justifyContent: "flex-start",
+      paddingTop: 30,
+    },
+  })
+ 
 });
 
 export default ResetPassword;

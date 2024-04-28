@@ -17,7 +17,7 @@ import WorkoutPlans from "./workoutPlans";
 import WorkoutLibrary from "./workoutLibrary";
 import MealPlans from "./mealPlans";
 import Logout from "./logout";
-import { getRequest, saveData, getBMIValue } from "../../../helper";
+import { getRequest, saveData, getBMIValue, removeData } from "../../../helper";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import LogoutModal from "./logoutModal";
 
@@ -31,6 +31,8 @@ const UserProfile = ({ navigation }) => {
   const confirmLogout = () => {
     // Perform logout action here
     // For example, clear user data, navigate to login screen, etc.
+    removeData("accessToken")
+    removeData("userdata")
     // After logout, navigate to the login screen
     navigation.navigate("Login");
     setModalVisible(false);
@@ -116,7 +118,7 @@ const UserProfile = ({ navigation }) => {
           <View style={styles.container}>
             <View style={styles.imageContainer}>
               <Image
-                source={require("../../../assets/Images/avatar.png")}
+                source={require("../../../assets/Images/avatar.jpg")}
                 style={styles.image}
               />
             </View>
@@ -206,7 +208,7 @@ const UserProfile = ({ navigation }) => {
                   value = userData ? userData.targetWeight + " kg" : "";
                   break;
                 case "Height":
-                  value = userData ? userData.height + " kg" : "";
+                  value = userData ? userData.height + " cm" : "";
                   break;
                 default:
                   value = "";

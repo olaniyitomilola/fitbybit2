@@ -26,6 +26,8 @@ const ExercisePage = ({ route, navigation }) => {
         const exercisesForWorkout =
           response?.data?.exercises[workoutName] || [];
           // Initialize the checked status for each exercise as false
+
+          //console.log(exercisesForWorkout)
         const exercisesWithCheck = exercisesForWorkout.map((exercise) => ({
           ...exercise,
           checked: false,

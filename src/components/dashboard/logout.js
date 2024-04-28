@@ -29,7 +29,7 @@ const Logout = ({ navigation }) => {
         </Text>
         <Text className="mb-2 text-2xl font-bold" style={{ color: "#0077CA"}}>Delete Account </Text>
       </View>
-      {/* <Button title="Yes" onPress={() => setModalVisible(true)} /> */}
+      <Button title="Yes" onPress={() => setModalVisible(true)} />
       <LogoutModal
         visible={modalVisible}
         onConfirm={confirmLogout}
