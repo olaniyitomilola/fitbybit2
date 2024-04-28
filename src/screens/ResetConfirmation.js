@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
   Image,
 } from "react-native";
 import { FontAwesome5, MaterialIcons } from "@expo/vector-icons";
+import { removeData, retrieveData } from "../../helper";
 
 const CustomTextInput = React.memo(
   ({
@@ -44,8 +45,14 @@ const CustomTextInput = React.memo(
 const ResetConfirmation = ({ navigation }) => {
   // navigation link
   const goBack = () => {
+    removeData("email")
     navigation.navigate("Login");
   };
+  const [email,setEmail] = useState("");
+
+  useEffect(()=>{
+    retrieveData("email").then((data)=>setEmail(data))
+  },[])
 
   return (
     <View style={styles.appContainer}>
@@ -61,7 +68,7 @@ const ResetConfirmation = ({ navigation }) => {
             Check your email
           </Text>
           <Text style={styles.textSub} className="leading-7">
-            We sent an email to{"\n"} <Text style={{fontWeight:"600", color: "#262626"}}>peterogh94@gmail.com</Text>{"\n"} with a reset
+            We sent an email to{"\n"} <Text style={{fontWeight:"600", color: "#262626"}}>{email}</Text>{"\n"} with a reset
             code{" "}
           </Text>
 

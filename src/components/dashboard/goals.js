@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, Image, ScrollView } from "react-native";
 import Calendar from "../calendar";
+import { getFormattedDate } from "../../../helper";
 
 const Goals = ({ navigation }) => {
   const workoutData = [
@@ -35,6 +36,13 @@ const Goals = ({ navigation }) => {
       id: 3,
     },
   ];
+
+  const [date,setDate] = useState("");
+
+  useEffect(()=>{
+    const date = getFormattedDate();
+    setDate(date)
+  },[])
   return (
 
 
@@ -52,9 +60,8 @@ const Goals = ({ navigation }) => {
       <View style={styles.imageAndTextContainer}>
         <View>
           <Text style={styles.heading}>Summary</Text>
-          <Text style={styles.subHeading}>Thursday, 25 August</Text>
         </View>
-        <Text style={styles.heading2}>Show more</Text>
+        <Text style={styles.subHeading}>{date}</Text>
       </View>
 
       <View className="mt-4">

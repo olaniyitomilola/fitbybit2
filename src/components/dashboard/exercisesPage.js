@@ -144,6 +144,7 @@ const ExercisePage = ({ route, navigation }) => {
           ) : exercises?.length === 0 ? (
             <Text>No exercises available for {workoutName}.</Text>
           ) : (
+            
             <View>
               {exercises.map((exercise, index) => {
                 return (
@@ -172,6 +173,7 @@ const ExercisePage = ({ route, navigation }) => {
                 );
               })}
             </View>
+            
             
           )}
         </View>
