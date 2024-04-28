@@ -40,38 +40,7 @@ const WorkoutLibrary = ({ navigation }) => {
 
     getAllWorkouts();
   }, []);
-  const WorkoutLibraryData = [
-    {
-      label: "Fitness at Home",
-      image: require("../../../assets/Images/fitnessathome.png"),
-      number: "85 workouts",
-      id: 1,
-    },
-    {
-      label: "Jamba Dance",
-      image: require("../../../assets/Images/jamba.png"),
-      number: "85 workouts",
-      id: 2,
-    },
-    {
-      label: "Boxing",
-      image: require("../../../assets/Images/boxing.png"),
-      number: "85 workouts",
-      id: 3,
-    },
-    {
-      label: "Cardio",
-      image: require("../../../assets/Images/cardio.png"),
-      number: "85 workouts",
-      id: 4,
-    },
-    {
-      label: "HIIT",
-      image: require("../../../assets/Images/hiit.png"),
-      number: "85 workouts",
-      id: 5,
-    },
-  ];
+ 
 
   return (
     <View style={{ flex: 1, marginTop: 30 }}>

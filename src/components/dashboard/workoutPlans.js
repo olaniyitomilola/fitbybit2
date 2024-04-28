@@ -2,25 +2,11 @@ import React, { useState } from "react";
 import { View, Text, StyleSheet, Image, Pressable } from "react-native";
 import { FontAwesome5, MaterialIcons } from "@expo/vector-icons";
 import RNPickerSelect from "react-native-picker-select";
+import { getRequest } from "../../../helper";
 
 const WorkoutPlans = ({ navigation }) => {
-  const workoutPlanData = [
-    {
-      label: "Full Body Burn Workout",
-      image: require("../../../assets/Images/Image1.png"),
-      id: 1,
-    },
-    {
-      label: "Toned Arms and Shoulder Workout",
-      image: require("../../../assets/Images/Image2.png"),
-      id: 2,
-    },
-    {
-      label: "Abs and Legs Workout",
-      image: require("../../../assets/Images/Image3.png"),
-      id: 3,
-    },
-  ];
+  const [workoutPlanData, setWorkoutPlan] = useState("")
+  const [populateWorkouts, setPopulateWorkout] = useState(false);
   const LevelData = [
     {
       name: "Beginner",
@@ -54,6 +40,24 @@ const WorkoutPlans = ({ navigation }) => {
     }
   ];
 
+  const getWorkouts = async ()=>{
+    if(goal && level){
+
+        try{
+          const workouts = await getRequest(`workout/getAllworkouts?FitnessLevel=${level}&Category=${goal}`)
+          if(workouts.success){
+              setWorkoutPlan(workouts.data);
+              setPopulateWorkout(true)
+          }
+          console.log(workouts)
+
+        }catch(error){
+          console.log(error)
+        }
+         
+    }
+  }
+
   /* Button Component*/
   const ButtonComponent = Platform.select({
     ios: () => (
@@ -70,23 +74,26 @@ const WorkoutPlans = ({ navigation }) => {
 
   const WorkoutButton = Platform.select({
     ios: () => (
-      <Pressable style={styles.buttonIOS}>
+      <Pressable on onPress={getWorkouts} style={styles.buttonIOS}>
         <Text style={styles.buttonText}>View Workouts</Text>
       </Pressable>
     ),
     android: () => (
-      <Pressable style={styles.buttonIOS}>
+      <Pressable onPress={getWorkouts} style={styles.buttonIOS}>
         <Text style={styles.buttonText}>View Workouts</Text>
       </Pressable>
     ),
   });
+  const [level, setLevel] = useState("");
+  const [goal,setGoal] = useState("")
+
 
   return (
     <View style={{ flex: 1, padding: 10, marginTop: 8 }}>
 
         {/* Use DropDownPicker for selecting level */}
         <RNPickerSelect
-        onValueChange={(value) => console.log(value)}
+        onValueChange={(value) => setLevel(value)}
         items={LevelData.map((lev) => ({
           label: lev.name,
           value: lev.id,
@@ -99,7 +106,7 @@ const WorkoutPlans = ({ navigation }) => {
       />
       {/* Use DropDownPicker for selecting type */}
       <RNPickerSelect
-        onValueChange={(value) => console.log(value)}
+        onValueChange={(value) => setGoal(value)}
         items={typeData.map((data) => ({
           label: data.name,
           value: data.id,
@@ -114,24 +121,25 @@ const WorkoutPlans = ({ navigation }) => {
       <View className="mt-4">
         <WorkoutButton />
       </View>
-      {/* <View>
-        {workoutPlanData.map((item) => (
-          <View key={item.id} style={styles.imageAndTextContainer}>
-            <Image source={item.image} style={styles.image} />
+      <View>
+        {populateWorkouts && workoutPlanData.map((item) => (
+          <View key={item.workoutName} style={styles.imageAndTextContainer}>
+            <Image source={require("../../../assets/Images/cardio.png")} style={styles.image} />
             <View style={styles.textContainer}>
-              <Text style={styles.heading}>{item.label}</Text>
+              <Text style={styles.heading}>{item.workoutName}</Text>
             </View>
             <Text style={{ ...styles.heading, marginTop: 5 }}>
               {" "}
               <MaterialIcons
                 name="keyboard-arrow-right"
                 size={28}
-                color="#1E1E1E8F"
+                color="white"
+                onPress={()=> console.log("pressed")}
               />
             </Text>
           </View>
         ))}
-      </View> */}
+      </View>
 
       {/* <View className="mt-4">
         <ButtonComponent />
@@ -147,12 +155,20 @@ const styles = StyleSheet.create({
   heading: {
     fontSize: 18,
     fontWeight: "600",
+    paddingLeft: 10,
+    color: "white"
+
   },
   imageAndTextContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
+    marginTop: 10,
+    padding: 10,
+    backgroundColor: "black",
     alignItems: "center",
-    marginBottom: 20,
+    marginBottom: 10,
+    borderRadius:10,
+    
   },
   image: {
     width: 50,
@@ -161,6 +177,8 @@ const styles = StyleSheet.create({
   },
   textContainer: {
     flex: 1,
+
+   
   },
   buttonIOS: {
     backgroundColor: "#0077CA",

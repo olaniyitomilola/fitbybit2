@@ -10,7 +10,7 @@ import {
   Platform,
 } from "react-native";
 import { MaterialIcons, FontAwesome5 } from "@expo/vector-icons";
-import { getRequest,postRequest } from "../../../helper";
+import { getRequest,postRequest, putRequest } from "../../../helper";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import RNPickerSelect from "react-native-picker-select";
 
@@ -83,35 +83,32 @@ const EditProfile = ({ navigation }) => {
   const typeData = [
     {
       name: "Lose Weight",
-      id: 0,
-    },
-    {
-      name: "Maintain Current Weight",
       id: 1,
     },
     {
-      name: "Gain Muscle And Strenght",
+      name: "Maintain Current Weight",
       id: 2,
     },
     {
-      name: "Build A Healthy Lifestyle",
+      name: "Gain Muscle And Strenght",
       id: 3,
+    },
+    {
+      name: "Build A Healthy Lifestyle",
+      id: 4,
     },
   ];
 
   const currentFitnessData = [
     {
       name: "New to Fitness",
-      id: 0,
-    },
-    {
-      name: "Regular to Fitness",
       id: 1,
     },
     {
-      name: "Advanced in Fitness",
+      name: "Regular to Fitness",
       id: 2,
     },
+ 
     {
       name: "Expert in Fitness",
       id: 3,
@@ -119,6 +116,7 @@ const EditProfile = ({ navigation }) => {
   ];
 
   const editProfilePost = async () => {
+          setIsLoading(true);
     try {
       const accessToken = await AsyncStorage.getItem("accessToken");
       const editData = {
@@ -127,23 +125,16 @@ const EditProfile = ({ navigation }) => {
         currentFitness: userDetails.currentFitness,
         fitnessGoal: userDetails.fitnessGoal,
       };
-      const response = await postRequest("Auth/UpdateUser", {
-        Authorization: `Bearer ${accessToken}`,
-        editData
-      });
+      const response = await putRequest("Auth/UpdateUser",editData, accessToken);
   
-      if (!response.ok) {
+      if (!response.success) {
         throw new Error("Failed to update data");
       }
-  
-      const responseData = await response.json();
-      if (responseData.success) {
-        console.log("Data successfully updated");
-        // Optionally, you can navigate to another screen or display a success message
-      } else {
-        throw new Error(responseData.message || "Unknown error");
-      }
-  
+      console.log(response)
+
+      console.log("Data successfully updated");
+        // Optionally, you can navigate to another screen or display a success messag
+      goBack();
       setIsLoading(false);
     } catch (error) {
       console.error("Error:", error);
@@ -157,12 +148,12 @@ const EditProfile = ({ navigation }) => {
   const ButtonComponent = Platform.select({
     ios: () => (
       <Pressable style={styles.buttonIOS}>
-        <Text style={styles.buttonText}>Edit Profile</Text>
+        <Text style={styles.buttonText} onPress={editProfilePost}>Edit Profile</Text>
       </Pressable>
     ),
     android: () => (
       <Pressable style={styles.buttonIOS}>
-        <Text style={styles.buttonText}>Edit Profile</Text>
+        <Text style={styles.buttonText} onPress={editProfilePost}>Edit Profile</Text>
       </Pressable>
     ),
   });
