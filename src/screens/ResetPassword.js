@@ -20,7 +20,7 @@ const CustomTextInput = React.memo(
     ...rest
   }) => {
     const handleTextChange = (text) => {
-      console.log("email:", text); 
+     // console.log("email:", text); 
       onChangeText(text);
     };
  

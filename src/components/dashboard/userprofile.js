@@ -28,11 +28,11 @@ const UserProfile = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
 
-  const confirmLogout = () => {
+  const confirmLogout = async () => {
     // Perform logout action here
     // For example, clear user data, navigate to login screen, etc.
-    removeData("accessToken")
-    removeData("userdata")
+    await removeData("accessToken")
+    await removeData("userdata")
     // After logout, navigate to the login screen
     navigation.navigate("Login");
     setModalVisible(false);

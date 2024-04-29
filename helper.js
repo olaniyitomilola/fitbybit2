@@ -16,13 +16,13 @@ export const getRequest = async (url, headers = {}) => {
       },
     });
     // console.log(accessToken, "tokenHelper")
-    console.log(response)
+    // console.log(response)
     // console.log(accessToken, "token")
     const data = await response.json();
     return data;
   } catch (error) {
     console.error(error);
-    throw error;
+    //throw error;
   }
 };
 
@@ -207,3 +207,22 @@ export const getBMIValue = (height, weight) => {
 
   return ` ${BMI.toFixed(2)}`;
 };
+
+export const getFormattedDate = ()=>{
+      // Create a new Date object
+    const currentDate = new Date();
+
+    // Define arrays for days and months
+    const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const monthsOfYear = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+    // Get day of the week, day of the month, and month
+    const dayOfWeek = daysOfWeek[currentDate.getDay()];
+    const dayOfMonth = currentDate.getDate();
+    const month = monthsOfYear[currentDate.getMonth()];
+
+    // Format the date string
+    const formattedDate = `${dayOfWeek}, ${dayOfMonth} ${month}`;
+    return formattedDate
+
+}

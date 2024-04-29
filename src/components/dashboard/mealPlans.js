@@ -18,6 +18,11 @@ const MealPlans = ({ navigation }) => {
   const [foods, setFoods] = useState([]);
   const [activeMealType, setActiveMealType] = useState(null);
   const [selectedFoods, setSelectedFoods] = useState({});
+  const [totalCalorie, setTotalCalorie] = useState(0);
+
+  const handleCalorie = (calories)=>{
+    setTotalCalorie(totalCalorie + calories);
+  }
 
   useEffect(() => {
     const getFoodGroups = async () => {
@@ -227,7 +232,7 @@ const MealPlans = ({ navigation }) => {
             {/* Total calories section */}
           <View className="mt-4">
           <Text style={styles.totalHeading}>Total Calories</Text>
-            <Text style={styles.totalsubHeading}>1800 CAL</Text>
+            <Text style={styles.totalsubHeading}>{totalCalorie} CAL</Text>
           </View>
           </View>
         </View>
