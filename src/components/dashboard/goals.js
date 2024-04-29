@@ -2,37 +2,37 @@ import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, Image, ScrollView } from "react-native";
 import Calendar from "../calendar";
 import { getFormattedDate } from "../../../helper";
+import SimpleLineChart from "../LineChart";
 
 const Goals = ({ navigation }) => {
   const workoutData = [
     {
-      label: "Functional Strength training",
-      value: "100kg, 10reps, 637cal",
-      date: "24 August",
-      id: 1,
+      value: "Beginner At Home Workout",
+      date: "Completed",
+      id: 1
     },
     {
-      label: "Chest press",
-      value: "100kg, 10reps, 637cal",
-      date: "24 August",
+      value: "20 Minute HIIT Workout",
+      date: "Not Completed",
       id: 2,
     },
+    {
+      value: "30 Minute HIIT Workout",
+      date: "Not Completed",
+      id: 3,
+    }
   ];
 
   const nutritionData = [
-    {
-      label: "Water Intake",
-      value: "1:52:38",
-      id: 1,
-    },
+   
     {
       label: "Total Calories",
       value: "801 CAL",
       id: 2,
     },
     {
-      label: "5 a day",
-      value: "127 KCAL",
+      label: "5 a day (Fruits)",
+      value: "1 of 5",
       id: 3,
     },
   ];
@@ -69,8 +69,6 @@ const Goals = ({ navigation }) => {
 
         {workoutData.map((item) => (
           <View key={item.id} style={styles.cardBg}>
-            <Text style={styles.subHeading}>{item.label}</Text>
-
             <View style={styles.imageAndTextContainer}>
               <Text style={{ ...styles.heading, marginTop: 5 }}>
                 {item.value}
@@ -98,11 +96,9 @@ const Goals = ({ navigation }) => {
       <View className="mt-4">
         <Text style={styles.heading3}>Progress</Text>
         <View style={styles.cardBg}>
-          <Image
-            source={require("../../../assets/Images/graph.png")}
-            className="mt-4"
-            style={styles.image}
-          />
+          <View style={styles.container}>
+              <SimpleLineChart />
+          </View>
         </View>
       </View>
     </View>
@@ -113,7 +109,11 @@ const Goals = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: {},
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
   imageAndTextContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
