@@ -12,6 +12,7 @@ import {
   DrawerContentScrollView,
   DrawerItemList,
 } from "@react-navigation/drawer";
+import { useFocusEffect } from "@react-navigation/native";
 import Goals from "./goals";
 import WorkoutPlans from "./workoutPlans";
 import WorkoutLibrary from "./workoutLibrary";
@@ -23,7 +24,7 @@ import LogoutModal from "./logoutModal";
 
 const Drawer = createDrawerNavigator();
 
-const UserProfile = ({ navigation }) => {
+const UserProfile = ({ navigation, route }) => {
   const [userData, setUserData] = useState();
   const [isLoading, setIsLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
@@ -58,35 +59,42 @@ const UserProfile = ({ navigation }) => {
     { label: "BMI", value: "" },
   ];
 
-  useEffect(() => {
-    setIsLoading(true)
-    const getUserProfile = async () => {
-      try {
-        const accessToken = await AsyncStorage.getItem("accessToken");
-
-        if (!accessToken) {
-          console.error("Access token not found.");
-          return;
-        }
-
-        const response = await getRequest("Auth/GetUser", null, {
-          Authorization: `Bearer ${accessToken}`,
-        });
-        console.log(response.data)
-        setUserData(response.data);
-
-        // Save user data in AsyncStorage under the key "userdata"
-        await saveData("userdata", response.data);
-
-        setIsLoading(false);
-      } catch (error) {
-        console.error("Error fetching user profile:", error);
-        setIsLoading(false);
+  const getUserProfile = async () => {
+    setIsLoading(true);
+    try {
+      const accessToken = await AsyncStorage.getItem("accessToken");
+    
+      if (!accessToken) {
+        return;
       }
-    };
 
+      const response = await getRequest("Auth/GetUser", null, {
+        Authorization: `Bearer ${accessToken}`,
+      });
+
+      setUserData(response.data);
+      await saveData("userdata", response.data);
+      setIsLoading(false);
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
     getUserProfile();
   }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      getUserProfile();
+    }, [])
+  );
+  useFocusEffect(
+    React.useCallback(() => {
+      getUserProfile(); // Fetch user profile data whenever the screen is focused
+    }, [])
+  );
 
   const WorkoutButton = Platform.select({
     ios: () => (

@@ -9,6 +9,7 @@ import {
   Pressable,
   Platform,
 } from "react-native";
+
 import { MaterialIcons, FontAwesome5 } from "@expo/vector-icons";
 import { getRequest,postRequest, putRequest } from "../../../helper";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -44,7 +45,7 @@ const CustomTextInput = React.memo(
     );
   }
 );
-const EditProfile = ({ navigation }) => {
+const EditProfile = ({ navigation, route}) => {
   const [userDetails, setUserDetails] = useState({
     targetWeight: "",
     startingWeight: "",
@@ -57,11 +58,11 @@ const EditProfile = ({ navigation }) => {
   const [startingWeight, setStartingWeight] = useState("");
   const [currentFitness, setCurrentFitness] = useState("");
 
-  const goBack = () => {
-    navigation.navigate("UserProfile");
+  const goBack = async () => {
+    navigation.navigate("UserProfile", { refreshProfile: getUserDetails });
   };
 
-  useEffect(() => {
+
     const getUserDetails = async () => {
       try {
         const accessToken = await AsyncStorage.getItem("accessToken");
@@ -76,9 +77,11 @@ const EditProfile = ({ navigation }) => {
         setIsLoading(false);
       }
     };
+    useEffect(() => {
+      getUserDetails(); 
+    }, []);
 
-    getUserDetails();
-  }, []);
+   
 
   const typeData = [
     {
@@ -135,6 +138,11 @@ const EditProfile = ({ navigation }) => {
       console.log("Data successfully updated");
         // Optionally, you can navigate to another screen or display a success messag
       goBack();
+
+      if (route.params && route.params.refreshProfile) {
+        route.params.refreshProfile();
+      }
+      
       setIsLoading(false);
     } catch (error) {
       console.error("Error:", error);
@@ -147,13 +155,24 @@ const EditProfile = ({ navigation }) => {
   /* Button Component*/
   const ButtonComponent = Platform.select({
     ios: () => (
-      <Pressable style={styles.buttonIOS}>
-        <Text style={styles.buttonText} onPress={editProfilePost}>Edit Profile</Text>
+      <Pressable style={styles.buttonIOS}  onPress={editProfilePost}>
+        <Text style={styles.buttonText}>
+          {isLoading ? (
+        <ActivityIndicator color="white" />
+      ) : (
+        <Text style={styles.buttonText}>Edit Profile</Text>
+      )}</Text>
       </Pressable>
     ),
     android: () => (
-      <Pressable style={styles.buttonIOS}>
-        <Text style={styles.buttonText} onPress={editProfilePost}>Edit Profile</Text>
+      <Pressable style={styles.buttonIOS} onPress={editProfilePost}>
+        <Text style={styles.buttonText}>
+        {isLoading ? (
+        <ActivityIndicator color="white" />
+      ) : (
+        <Text style={styles.buttonText}>Edit Profile</Text>
+      )}
+        </Text>
       </Pressable>
     ),
   });
@@ -228,7 +247,7 @@ const EditProfile = ({ navigation }) => {
             }}
           />
 
-          <View className="mt-4">
+          <View className="mt-6">
             <ButtonComponent />
           </View>
         </View>

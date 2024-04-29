@@ -4,10 +4,12 @@ import {
   Text,
   StyleSheet,
   Image,
+  ActivityIndicator,
   Pressable,
   ScrollView,
+  Alert,
 } from "react-native";
-import { getRequest, saveData } from "../../../helper";
+import { getRequest, saveData, postRequest } from "../../../helper";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AntDesign } from "@expo/vector-icons";
 
@@ -18,11 +20,25 @@ const MealPlans = ({ navigation }) => {
   const [foods, setFoods] = useState([]);
   const [activeMealType, setActiveMealType] = useState(null);
   const [selectedFoods, setSelectedFoods] = useState({});
-  const [totalCalorie, setTotalCalorie] = useState(0);
+  const [totalCalories, setTotalCalories] = useState({
+    Breakfast: "",
+    Lunch: "",
+    Dinner: "",
+  });
+  totalCalories;
+  const calculateTotalCalories = (mealType) => {
+    if (!selectedFoods[mealType]) return null; // Return null if no foods are selected for the meal type
 
-  const handleCalorie = (calories)=>{
-    setTotalCalorie(totalCalorie + calories);
-  }
+    // Calculate total calories by summing the calories of all selected foods for the meal type
+    return selectedFoods[mealType].reduce((total, food) => {
+      return total + parseInt(food.calories); // Convert calories to integer before adding
+    }, 0);
+  };
+
+  const overallTotalCalories = Object.values(totalCalories).reduce(
+    (acc, curr) => acc + (parseInt(curr) || 0),
+    0
+  );
 
   useEffect(() => {
     const getFoodGroups = async () => {
@@ -32,7 +48,6 @@ const MealPlans = ({ navigation }) => {
           Authorization: `Bearer ${accessToken}`,
         });
         setFoodGroup(response.data);
-        // console.log(response.data, "Fodogroup")
         await saveData("foodgroup", response.data);
         setIsLoading(false);
       } catch (error) {
@@ -92,6 +107,15 @@ const MealPlans = ({ navigation }) => {
         } else {
           updatedFoods[activeMealType] = [food];
         }
+        // Calculate total calories for the active meal type
+        const total = calculateTotalCalories(activeMealType);
+        setTotalCalories((prevTotalCalories) => ({
+          ...prevTotalCalories,
+          [activeMealType]:
+            total !== null ? total : prevTotalCalories[activeMealType],
+        }));
+        console.log(total, "total");
+
         return updatedFoods;
       });
     }
@@ -100,9 +124,22 @@ const MealPlans = ({ navigation }) => {
   const handleRemoveFoodFromMealType = (indexToRemove) => {
     setSelectedFoods((prevSelectedFoods) => {
       const updatedFoods = { ...prevSelectedFoods };
+      // Get the calories of the food to be removed
+      const removedFoodCalories =
+        updatedFoods[activeMealType][indexToRemove].calories;
+      // Remove the food from the selected foods list
       updatedFoods[activeMealType] = updatedFoods[activeMealType].filter(
         (_, index) => index !== indexToRemove
       );
+      // Calculate total calories for the active meal type after removing the food
+      const total =
+        calculateTotalCalories(activeMealType) - removedFoodCalories;
+      // Update the total calories state
+      setTotalCalories((prevTotalCalories) => ({
+        ...prevTotalCalories,
+        [activeMealType]:
+          total !== null ? total : prevTotalCalories[activeMealType],
+      }));
       return updatedFoods;
     });
   };
@@ -110,20 +147,14 @@ const MealPlans = ({ navigation }) => {
   const mealType = [
     {
       name: "Breakfast",
-      cal: "2000Kcal",
-      image: require("../../../assets/Images/line-straight.png"),
       id: 1,
     },
     {
       name: "Lunch",
-      cal: "500cal",
-      image: require("../../../assets/Images/line-straight.png"),
       id: 2,
     },
     {
       name: "Dinner",
-      cal: "2000Kcal",
-      image: require("../../../assets/Images/line-straight.png"),
       id: 3,
     },
   ];
@@ -131,16 +162,76 @@ const MealPlans = ({ navigation }) => {
   /* Button Component*/
   const ButtonComponent = Platform.select({
     ios: () => (
-      <Pressable style={styles.buttonIOS}>
-        <Text style={styles.buttonText}>Add Meals to My Plan</Text>
+      <Pressable style={styles.buttonIOS} onPress={addMealPlan}>
+        <Text style={styles.buttonText}>
+          {isLoading ? (
+            <ActivityIndicator size="small" color="white" />
+          ) : (
+            "Add Meals to My Plan"
+          )}
+        </Text>
       </Pressable>
     ),
     android: () => (
-      <Pressable style={styles.buttonIOS}>
-        <Text style={styles.buttonText}>Add Meals to My Plan</Text>
+      <Pressable style={styles.buttonIOS} onPress={addMealPlan}>
+        <Text style={styles.buttonText}>
+          {isLoading ? (
+            <ActivityIndicator size="small" color="white" />
+          ) : (
+            "Add Meals to My Plan"
+          )}
+        </Text>
       </Pressable>
     ),
   });
+
+  const addMealPlan = async () => {
+    try {
+      // Get the access token from AsyncStorage
+      const accessToken = await AsyncStorage.getItem("accessToken");
+
+      // Initialize an array to hold the meal plan data
+      const mealPlanData = [];
+
+      // Iterate over the selected meal types
+      mealType.forEach((type) => {
+        // Check if the meal type is selected and has selected foods
+        if (selectedFoods[type.id] && selectedFoods[type.id].length > 0) {
+          // Prepare mealIds array by extracting ids from selected foods for the current meal type
+          const mealIds = selectedFoods[type.id].map((food) => food.id);
+
+          // Construct meal plan object for the current meal type
+          const mealPlanItem = {
+            mealIds,
+            mealType: type.id,
+            date: new Date().toISOString().split("T")[0],
+          };
+
+          // Push the constructed meal plan object to the mealPlanData array
+          mealPlanData.push(mealPlanItem);
+        }
+      });
+
+      try {
+        setIsLoading(true);
+        // Make a POST request to add meals to the plan
+        const response = await postRequest(
+          "Meal/CreateMealPlan",
+          mealPlanData,
+          accessToken
+        );
+        Alert.alert("Message", response.message);
+
+        setIsLoading(false);
+      } catch (error) {
+        console.log(error, "error");
+        setIsLoading(false);
+      }
+    } catch (error) {
+      console.error(error);
+      setIsLoading(false);
+    }
+  };
 
   return (
     <View style={{ flex: 1, padding: 15, marginTop: 10 }}>
@@ -205,7 +296,9 @@ const MealPlans = ({ navigation }) => {
                       <View style={styles.selectedFoodsList}>
                         {selectedFoods[activeMealType].map((food, index) => (
                           <View key={index} style={styles.selectedFoodItem}>
-                            <Text style={styles.selectedFoodName}>
+                            <Text style={styles.selectedFoodName}  onPress={() =>
+                                  handleRemoveFoodFromMealType(index)
+                                }>
                               {food.name}
                             </Text>
                             <Pressable>
@@ -230,10 +323,21 @@ const MealPlans = ({ navigation }) => {
             ))}
 
             {/* Total calories section */}
-          <View className="mt-4">
+            {/* <View className="mt-4">
           <Text style={styles.totalHeading}>Total Calories</Text>
-            <Text style={styles.totalsubHeading}>{totalCalorie} CAL</Text>
-          </View>
+            <Text style={styles.totalsubHeading}>20 CAL</Text>
+          </View> */}
+
+            <View className="mt-4">
+              <Text style={styles.totalHeading}>Total Calories</Text>
+              <View style={{ flexDirection: "row" }}>
+                <View style={{ marginRight: 20 }}>
+                  <Text style={styles.totalsubHeading}>
+                    {overallTotalCalories} CAL
+                  </Text>
+                </View>
+              </View>
+            </View>
           </View>
         </View>
 
@@ -284,7 +388,10 @@ const MealPlans = ({ navigation }) => {
                           style={styles.imageAndTextContainer}
                         >
                           <View style={styles.textContainer}>
+                            <Pressable  onPress={() => handleAddFoodToMealType(food)}>
                             <Text style={styles.exerciseName}>{food.name}</Text>
+                            </Pressable>
+                          
                             <Text style={styles.exerciseDetails}>
                               Calories: {food.calories}
                             </Text>
@@ -313,7 +420,7 @@ const MealPlans = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   heading: {
-    fontSize: 12,
+    fontSize: 15,
     fontWeight: "600",
   },
   bgCard: {
@@ -330,15 +437,15 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   exerciseName: {
-    fontSize: 12,
+    fontSize: 15,
     marginBottom: 5,
   },
   exerciseDetails: {
-    fontSize: 8,
+    fontSize: 10,
     color: "#0077CA",
   },
   plusSign: {
-    fontSize: 20,
+    fontSize: 25,
     color: "#0077CA",
     marginRight: 5,
   },
@@ -375,7 +482,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
   heading2: {
-    fontSize: 15,
+    fontSize: 18,
     fontWeight: "700",
     marginTop: 10,
   },
@@ -421,7 +528,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   selectedFoodName: {
-    fontSize: 10,
+    fontSize: 13,
   },
   removeIcon: {
     marginLeft: 5,
