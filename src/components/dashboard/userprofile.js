@@ -63,15 +63,16 @@ const UserProfile = ({ navigation }) => {
     const getUserProfile = async () => {
       try {
         const accessToken = await AsyncStorage.getItem("accessToken");
-
+      
         if (!accessToken) {
-          console.error("Access token not found.");
+          // console.error("Access token not found.");
           return;
         }
 
         const response = await getRequest("Auth/GetUser", null, {
           Authorization: `Bearer ${accessToken}`,
         });
+        // console.log(response, "res")
 
         setUserData(response.data);
 
@@ -80,7 +81,7 @@ const UserProfile = ({ navigation }) => {
 
         setIsLoading(false);
       } catch (error) {
-        console.error("Error fetching user profile:", error);
+        // console.error("Error fetching user profile:", error);
         setIsLoading(false);
       }
     };
