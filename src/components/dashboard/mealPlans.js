@@ -7,7 +7,7 @@ import {
   Pressable,
   ScrollView,
 } from "react-native";
-import { getRequest, saveData } from "../../../helper";
+import { getRequest, saveData, postRequest } from "../../../helper";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AntDesign } from "@expo/vector-icons";
 
@@ -18,12 +18,25 @@ const MealPlans = ({ navigation }) => {
   const [foods, setFoods] = useState([]);
   const [activeMealType, setActiveMealType] = useState(null);
   const [selectedFoods, setSelectedFoods] = useState({});
-  const [totalCalorie, setTotalCalorie] = useState(0);
+  const [totalCalories, setTotalCalories] = useState({
+    Breakfast: "",
+    Lunch: "",
+    Dinner: "",
+  });
+  const calculateTotalCalories = (mealType) => {
+    if (!selectedFoods[mealType]) return null; // Return null if no foods are selected for the meal type
+    totalCalories;
 
-  const handleCalorie = (calories)=>{
-    setTotalCalorie(totalCalorie + calories);
-  }
+    // Calculate total calories by summing the calories of all selected foods for the meal type
+    return selectedFoods[mealType].reduce((total, food) => {
+      return total + parseInt(food.calories); // Convert calories to integer before adding
+    }, 0);
+  };
 
+  const overallTotalCalories = Object.values(totalCalories).reduce(
+    (acc, curr) => acc + (parseInt(curr) || 0),
+    0
+  );
   useEffect(() => {
     const getFoodGroups = async () => {
       try {
@@ -32,7 +45,6 @@ const MealPlans = ({ navigation }) => {
           Authorization: `Bearer ${accessToken}`,
         });
         setFoodGroup(response.data);
-        // console.log(response.data, "Fodogroup")
         await saveData("foodgroup", response.data);
         setIsLoading(false);
       } catch (error) {
@@ -92,6 +104,15 @@ const MealPlans = ({ navigation }) => {
         } else {
           updatedFoods[activeMealType] = [food];
         }
+        // Calculate total calories for the active meal type
+        const total = calculateTotalCalories(activeMealType);
+        setTotalCalories((prevTotalCalories) => ({
+          ...prevTotalCalories,
+          [activeMealType]:
+            total !== null ? total : prevTotalCalories[activeMealType],
+        }));
+        console.log(total, "total");
+
         return updatedFoods;
       });
     }
@@ -100,9 +121,22 @@ const MealPlans = ({ navigation }) => {
   const handleRemoveFoodFromMealType = (indexToRemove) => {
     setSelectedFoods((prevSelectedFoods) => {
       const updatedFoods = { ...prevSelectedFoods };
+      // Get the calories of the food to be removed
+      const removedFoodCalories =
+        updatedFoods[activeMealType][indexToRemove].calories;
+      // Remove the food from the selected foods list
       updatedFoods[activeMealType] = updatedFoods[activeMealType].filter(
         (_, index) => index !== indexToRemove
       );
+      // Calculate total calories for the active meal type after removing the food
+      const total =
+        calculateTotalCalories(activeMealType) - removedFoodCalories;
+      // Update the total calories state
+      setTotalCalories((prevTotalCalories) => ({
+        ...prevTotalCalories,
+        [activeMealType]:
+          total !== null ? total : prevTotalCalories[activeMealType],
+      }));
       return updatedFoods;
     });
   };
@@ -110,20 +144,14 @@ const MealPlans = ({ navigation }) => {
   const mealType = [
     {
       name: "Breakfast",
-      cal: "2000Kcal",
-      image: require("../../../assets/Images/line-straight.png"),
       id: 1,
     },
     {
       name: "Lunch",
-      cal: "500cal",
-      image: require("../../../assets/Images/line-straight.png"),
       id: 2,
     },
     {
       name: "Dinner",
-      cal: "2000Kcal",
-      image: require("../../../assets/Images/line-straight.png"),
       id: 3,
     },
   ];
@@ -131,16 +159,50 @@ const MealPlans = ({ navigation }) => {
   /* Button Component*/
   const ButtonComponent = Platform.select({
     ios: () => (
-      <Pressable style={styles.buttonIOS}>
+      <Pressable style={styles.buttonIOS} onPress={handleAddMealsToPlan}>
         <Text style={styles.buttonText}>Add Meals to My Plan</Text>
       </Pressable>
     ),
     android: () => (
-      <Pressable style={styles.buttonIOS}>
+      <Pressable style={styles.buttonIOS} onPress={handleAddMealsToPlan}>
         <Text style={styles.buttonText}>Add Meals to My Plan</Text>
       </Pressable>
     ),
   });
+
+  const addMealPlan = async () => {
+    try {
+      const accessToken = await AsyncStorage.getItem("accessToken");
+  
+      // Prepare data for the POST request
+      const selectedMealIds  = Object.values(selectedFoods).flatMap(
+        (foods) => foods.map((food) => food.id)
+      );
+      const currentDate = new Date().toISOString().split("T")[0]; // Get current date in YYYY-MM-DD format
+  
+      const requestData = {
+        mealIds:selectedMealIds,
+        mealType: activeMealType,
+        date: currentDate,
+      };
+      console.log(requestData, "requestData")
+  
+      // Make a POST request to add meals to the plan
+      const response = await postRequest("Meal/CreateMealPlan", requestData, {
+        Authorization: `Bearer ${accessToken}`,
+      });
+  
+      console.log(response, "sentpost");
+      setIsLoading(false);
+    } catch (error) {
+      console.log(error, "error");
+      setIsLoading(false);
+    }
+  };
+  // Call the addMealPlan function when the user presses the button
+const handleAddMealsToPlan = async () => {
+  await addMealPlan();
+};
 
   return (
     <View style={{ flex: 1, padding: 15, marginTop: 10 }}>
@@ -230,10 +292,21 @@ const MealPlans = ({ navigation }) => {
             ))}
 
             {/* Total calories section */}
-          <View className="mt-4">
+            {/* <View className="mt-4">
           <Text style={styles.totalHeading}>Total Calories</Text>
-            <Text style={styles.totalsubHeading}>{totalCalorie} CAL</Text>
-          </View>
+            <Text style={styles.totalsubHeading}>20 CAL</Text>
+          </View> */}
+
+            <View className="mt-4">
+              <Text style={styles.totalHeading}>Total Calories</Text>
+              <View style={{ flexDirection: "row" }}>
+                <View style={{ marginRight: 20 }}>
+                  <Text style={styles.totalsubHeading}>
+                    {overallTotalCalories} CAL
+                  </Text>
+                </View>
+              </View>
+            </View>
           </View>
         </View>
 

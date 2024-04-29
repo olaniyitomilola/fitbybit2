@@ -1,12 +1,48 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, Image, Pressable } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  Pressable,
+  ActivityIndicator,
+} from "react-native";
 import { FontAwesome5, MaterialIcons } from "@expo/vector-icons";
 import RNPickerSelect from "react-native-picker-select";
 import { getRequest } from "../../../helper";
+import CreateWorkoutModal from "./createWorkoutModal";
 
 const WorkoutPlans = ({ navigation }) => {
-  const [workoutPlanData, setWorkoutPlan] = useState("")
+  const [workoutPlanData, setWorkoutPlan] = useState("");
   const [populateWorkouts, setPopulateWorkout] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedWorkoutPlanId, setSelectedWorkoutPlanId] = useState(null); 
+
+
+  const CreateWorkout = async () => {
+    try{
+
+      const currentDate = new Date().toISOString().split("T")[0]; 
+      const requestData = {
+        date: currentDate,
+      };
+
+      const accessToken = await AsyncStorage.getItem("accessToken");
+      const response = await postRequest("Workout/CreateWorkoutPlan", requestData, {
+        Authorization: `Bearer ${accessToken}`,
+      });
+      console.log(response, "sentpost");
+
+    }catch{
+
+    }
+    setModalVisible(false);
+  };
+
+  const CancelWorkout = () => {
+    setModalVisible(false);
+  };
   const LevelData = [
     {
       name: "Beginner",
@@ -37,62 +73,66 @@ const WorkoutPlans = ({ navigation }) => {
     {
       name: "Build A Healthy Lifstyle",
       id: 4,
-    }
+    },
   ];
 
-  const getWorkouts = async ()=>{
-    if(goal && level){
-
-        try{
-          const workouts = await getRequest(`workout/getAllworkouts?FitnessLevel=${level}&Category=${goal}`)
-          if(workouts.success){
-              setWorkoutPlan(workouts.data);
-              setPopulateWorkout(true)
-          }
-          console.log(workouts)
-
-        }catch(error){
-          console.log(error)
+  const getWorkouts = async () => {
+    if (goal && level) {
+      setIsLoading(true);
+      try {
+     
+        const workouts = await getRequest(
+          `workout/getAllworkouts?FitnessLevel=${level}&Category=${goal}`
+        );
+        if (workouts.success) {
+          setWorkoutPlan(workouts.data);
+          setPopulateWorkout(true);
+      
         }
-         
+        setIsLoading(false);
+        // console.log(workouts)
+      } catch (error) {
+        setIsLoading(false);
+      }
     }
-  }
+  };
 
-  /* Button Component*/
-  const ButtonComponent = Platform.select({
-    ios: () => (
-      <Pressable style={styles.buttonIOS}>
-        <Text style={styles.buttonText}>Add Workout to My Calendar</Text>
-      </Pressable>
-    ),
-    android: () => (
-      <Pressable style={styles.buttonIOS}>
-        <Text style={styles.buttonText}>Add Workout to My Calendar</Text>
-      </Pressable>
-    ),
-  });
+
 
   const WorkoutButton = Platform.select({
     ios: () => (
-      <Pressable on onPress={getWorkouts} style={styles.buttonIOS}>
-        <Text style={styles.buttonText}>View Workouts</Text>
+      <Pressable onPress={getWorkouts} style={styles.buttonIOS}>
+      
+       <Text style={styles.buttonText}>View Workouts</Text>
+     
+          {/* {isLoading ? (
+            <ActivityIndicator color="white" />
+          ) : (
+            <Text style={styles.buttonText}>View Workouts</Text>
+          )} */}
+    
       </Pressable>
     ),
     android: () => (
       <Pressable onPress={getWorkouts} style={styles.buttonIOS}>
-        <Text style={styles.buttonText}>View Workouts</Text>
+          <Text style={styles.buttonText}>View Workouts</Text>
       </Pressable>
     ),
   });
+  
+  const handleWorkoutPress = (workoutId) => {
+    console.log(workoutId, "id")
+    setSelectedWorkoutPlanId(workoutId);
+    setModalVisible(true);
+  };
   const [level, setLevel] = useState("");
-  const [goal,setGoal] = useState("")
-
+  const [goal, setGoal] = useState("");
 
   return (
     <View style={{ flex: 1, padding: 10, marginTop: 8 }}>
-
-        {/* Use DropDownPicker for selecting level */}
-        <RNPickerSelect
+      <Text style={styles.heading2}>Select a Workout Plan </Text>
+      {/* Use DropDownPicker for selecting level */}
+      <RNPickerSelect
         onValueChange={(value) => setLevel(value)}
         items={LevelData.map((lev) => ({
           label: lev.name,
@@ -121,32 +161,40 @@ const WorkoutPlans = ({ navigation }) => {
       <View className="mt-4">
         <WorkoutButton />
       </View>
-      <View>
-        {populateWorkouts && workoutPlanData.map((item) => (
-          <View key={item.workoutName} style={styles.imageAndTextContainer}>
-            <Image source={require("../../../assets/Images/cardio.png")} style={styles.image} />
-            <View style={styles.textContainer}>
-              <Text style={styles.heading}>{item.workoutName}</Text>
-            </View>
-            <Text style={{ ...styles.heading, marginTop: 5 }}>
-              {" "}
-              <MaterialIcons
-                name="keyboard-arrow-right"
-                size={28}
-                color="white"
-                onPress={()=> console.log("pressed")}
+      <View className="mt-8">
+        {populateWorkouts &&
+          workoutPlanData.map((item) => (
+            <View key={item.workoutName} style={styles.imageAndTextContainer}>
+              <Image
+                source={require("../../../assets/Images/cardio.png")}
+                style={styles.image}
               />
-            </Text>
-          </View>
-        ))}
+              <View style={styles.textContainer}>
+                <Text style={styles.heading}>{item.workoutName}</Text>
+                <Text style={styles.heading}>{item.id}</Text>
+              </View>
+              <Text style={{ ...styles.heading, marginTop: 5 }}>
+                {" "}
+                <MaterialIcons
+                  name="keyboard-arrow-right"
+                  size={28}
+                  color="white"
+                  onPress={() => handleWorkoutPress(item.id)}
+                />
+              </Text>
+            </View>
+          ))}
       </View>
 
       {/* <View className="mt-4">
         <ButtonComponent />
       </View> */}
 
-
-    
+      <CreateWorkoutModal
+        visible={modalVisible}
+        onConfirm={CreateWorkout}
+        onCancel={CancelWorkout}
+      />
     </View>
   );
 };
@@ -156,19 +204,17 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "600",
     paddingLeft: 10,
-    color: "white"
-
+    color: "white",
   },
   imageAndTextContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
     marginTop: 10,
     padding: 10,
-    backgroundColor: "black",
+    backgroundColor: "#0077CA",
     alignItems: "center",
     marginBottom: 10,
-    borderRadius:10,
-    
+    borderRadius: 10,
   },
   image: {
     width: 50,
@@ -177,8 +223,6 @@ const styles = StyleSheet.create({
   },
   textContainer: {
     flex: 1,
-
-   
   },
   buttonIOS: {
     backgroundColor: "#0077CA",
