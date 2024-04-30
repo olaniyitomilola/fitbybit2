@@ -195,22 +195,16 @@ const EditProfile = ({ navigation, route}) => {
 
         <View className="mt-4">
           <RNPickerSelect
-            onValueChange={(value) => {
-              //   console.log("Selected Value:", value);
-              setFitnessGoal(value);
-            }}
+            onValueChange={(value) =>
+              setUserDetails((prev) => ({ ...prev, fitnessGoal: value }))
+            }
             items={typeData.map((data) => ({
               label: data.name,
               value: data.id,
             }))}
             style={dropdownStyles}
-            value={fitnessGoal} // Set the default value to the state variable
-            placeholder={{
-              label: userDetails.fitnessGoal
-                ? typeData.find((data) => data.id === userDetails.fitnessGoal)
-                    ?.name ?? userDetails.fitnessGoal
-                : "Select Fitness Goal",
-            }}
+            value={userDetails.fitnessGoal}
+           
           />
 
           <CustomTextInput
@@ -219,6 +213,7 @@ const EditProfile = ({ navigation, route}) => {
             onChangeText={(text) =>
               setUserDetails({ ...userDetails, targetWeight: text })
             }
+            keyboardType="numeric"
           />
           <CustomTextInput
             placeholder="Your Starting Weight"
@@ -226,25 +221,18 @@ const EditProfile = ({ navigation, route}) => {
             onChangeText={(text) =>
               setUserDetails({ ...userDetails, startingWeight: text })
             }
+            keyboardType="numeric"
           />
           <RNPickerSelect
-            onValueChange={(value) => {
-              //   console.log("Selected Value:", value);
-              setCurrentFitness(value);
-            }}
+              onValueChange={(value) =>
+                setUserDetails((prev) => ({ ...prev, currentFitness: value }))
+              }
             items={currentFitnessData.map((data) => ({
               label: data.name,
               value: data.id,
             }))}
             style={dropdownStyles}
-            value={currentFitness} // Set the default value to the state variable
-            placeholder={{
-              label: userDetails.fitnessGoal
-                ? currentFitnessData.find(
-                    (data) => data.id === userDetails.currentFitness
-                  )?.name ?? userDetails.currentFitness
-                : "Select Fitness Goal",
-            }}
+            value={userDetails.currentFitness}
           />
 
           <View className="mt-6">

@@ -17,26 +17,9 @@ const WorkoutPlans = ({ navigation }) => {
   const [populateWorkouts, setPopulateWorkout] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedWorkoutPlanId, setSelectedWorkoutPlanId] = useState(null); 
+  const [selectedWorkoutPlanId, setSelectedWorkoutPlanId] = useState(null);
 
-
-  const CreateWorkout = async () => {
-    try{
-
-      const currentDate = new Date().toISOString().split("T")[0]; 
-      const requestData = {
-        date: currentDate,
-      };
-
-      const accessToken = await AsyncStorage.getItem("accessToken");
-      const response = await postRequest("Workout/CreateWorkoutPlan", requestData, {
-        Authorization: `Bearer ${accessToken}`,
-      });
-      console.log(response, "sentpost");
-
-    }catch{
-
-    }
+  const CreateWorkout = async (workoutId) => {
     setModalVisible(false);
   };
 
@@ -80,14 +63,12 @@ const WorkoutPlans = ({ navigation }) => {
     if (goal && level) {
       setIsLoading(true);
       try {
-     
         const workouts = await getRequest(
           `workout/getAllworkouts?FitnessLevel=${level}&Category=${goal}`
         );
         if (workouts.success) {
           setWorkoutPlan(workouts.data);
           setPopulateWorkout(true);
-      
         }
         setIsLoading(false);
         // console.log(workouts)
@@ -97,31 +78,26 @@ const WorkoutPlans = ({ navigation }) => {
     }
   };
 
-
-
   const WorkoutButton = Platform.select({
     ios: () => (
       <Pressable onPress={getWorkouts} style={styles.buttonIOS}>
-      
-       <Text style={styles.buttonText}>View Workouts</Text>
-     
-          {/* {isLoading ? (
+        <Text style={styles.buttonText}>View Workouts</Text>
+
+        {/* {isLoading ? (
             <ActivityIndicator color="white" />
           ) : (
             <Text style={styles.buttonText}>View Workouts</Text>
           )} */}
-    
       </Pressable>
     ),
     android: () => (
       <Pressable onPress={getWorkouts} style={styles.buttonIOS}>
-          <Text style={styles.buttonText}>View Workouts</Text>
+        <Text style={styles.buttonText}>View Workouts</Text>
       </Pressable>
     ),
   });
-  
+
   const handleWorkoutPress = (workoutId) => {
-    console.log(workoutId, "id")
     setSelectedWorkoutPlanId(workoutId);
     setModalVisible(true);
   };
@@ -171,7 +147,6 @@ const WorkoutPlans = ({ navigation }) => {
               />
               <View style={styles.textContainer}>
                 <Text style={styles.heading}>{item.workoutName}</Text>
-                <Text style={styles.heading}>{item.id}</Text>
               </View>
               <Text style={{ ...styles.heading, marginTop: 5 }}>
                 {" "}
@@ -179,7 +154,7 @@ const WorkoutPlans = ({ navigation }) => {
                   name="keyboard-arrow-right"
                   size={28}
                   color="white"
-                  onPress={() => handleWorkoutPress(item.id)}
+                  onPress={() => handleWorkoutPress(item.workoutId)}
                 />
               </Text>
             </View>
@@ -192,6 +167,7 @@ const WorkoutPlans = ({ navigation }) => {
 
       <CreateWorkoutModal
         visible={modalVisible}
+        workoutId={selectedWorkoutPlanId}
         onConfirm={CreateWorkout}
         onCancel={CancelWorkout}
       />

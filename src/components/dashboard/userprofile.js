@@ -6,6 +6,8 @@ import {
   Image,
   ActivityIndicator,
   Pressable,
+  RefreshControl,
+  ScrollView,
 } from "react-native";
 import {
   createDrawerNavigator,
@@ -28,12 +30,13 @@ const UserProfile = ({ navigation, route }) => {
   const [userData, setUserData] = useState();
   const [isLoading, setIsLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   const confirmLogout = async () => {
     // Perform logout action here
     // For example, clear user data, navigate to login screen, etc.
-    await removeData("accessToken")
-    await removeData("userdata")
+    await removeData("accessToken");
+    await removeData("userdata");
     // After logout, navigate to the login screen
     navigation.navigate("Login");
     setModalVisible(false);
@@ -60,10 +63,9 @@ const UserProfile = ({ navigation, route }) => {
   ];
 
   const getUserProfile = async () => {
-    setIsLoading(true);
     try {
       const accessToken = await AsyncStorage.getItem("accessToken");
-    
+
       if (!accessToken) {
         return;
       }
@@ -74,10 +76,8 @@ const UserProfile = ({ navigation, route }) => {
 
       setUserData(response.data);
       await saveData("userdata", response.data);
-      setIsLoading(false);
     } catch (error) {
       console.error("Error fetching user profile:", error);
-      setIsLoading(false);
     }
   };
 
@@ -95,34 +95,37 @@ const UserProfile = ({ navigation, route }) => {
       getUserProfile(); // Fetch user profile data whenever the screen is focused
     }, [])
   );
+  const onRefresh = React.useCallback(async () => {
+    setRefreshing(true);
+    await getUserProfile();
+    setRefreshing(false);
+  }, []);
 
   const WorkoutButton = Platform.select({
     ios: () => (
       <Pressable style={styles.buttonIOS}>
-        <Text style={styles.buttonText}  onPress={() => setModalVisible(true)}>Log out</Text>
+        <Text style={styles.buttonText} onPress={() => setModalVisible(true)}>
+          Log out
+        </Text>
       </Pressable>
     ),
     android: () => (
       <Pressable style={styles.buttonIOS}>
-        <Text style={styles.buttonText}  onPress={() => setModalVisible(true)}>Log out</Text>
+        <Text style={styles.buttonText} onPress={() => setModalVisible(true)}>
+          Log out
+        </Text>
       </Pressable>
     ),
   });
 
   return (
-    <View style={{ flex: 1, padding: 1, marginTop: 10 }}>
-      {isLoading ? (
-        <View
-          style={{
-            flex: 1,
-            justifyContent: "center",
-            alignItems: "center",
-            marginTop: 10,
-          }}
-        >
-          <ActivityIndicator size="large" color="black" />
-        </View>
-      ) : (
+    <ScrollView
+      style={{ flex: 1, padding: 1, marginTop: 10 }}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
+    >
+  
         <View>
           <View style={styles.container}>
             <View style={styles.imageContainer}>
@@ -135,15 +138,15 @@ const UserProfile = ({ navigation, route }) => {
               <Text style={styles.text}>
                 Name:{" "}
                 <Text style={styles.nestedText}>
-                  {userData.firstName} {userData.lastName}
+                  {userData?.firstName} {userData?.lastName}
                 </Text>
               </Text>
               <Text style={styles.text}>
-                Email: <Text style={styles.nestedText}>{userData.email}</Text>
+                Email: <Text style={styles.nestedText}>{userData?.email}</Text>
               </Text>
               <Text style={styles.text}>
                 Phone no:{" "}
-                <Text style={styles.nestedText}>{userData.phoneNumber}</Text>
+                <Text style={styles.nestedText}>{userData?.phoneNumber}</Text>
               </Text>
             </View>
           </View>
@@ -166,7 +169,7 @@ const UserProfile = ({ navigation, route }) => {
               let value = "";
               switch (item.label) {
                 case "Fitness level":
-                  switch (userData.currentFitness) {
+                  switch (userData?.currentFitness) {
                     case 1:
                       value = "New to Fitness";
                       break;
@@ -187,7 +190,7 @@ const UserProfile = ({ navigation, route }) => {
                       : "";
                   break;
                 case "Fitness goal":
-                  switch (userData.fitnessGoal) {
+                  switch (userData?.fitnessGoal) {
                     case 1:
                       value = "Lose Weight";
                       break;
@@ -232,14 +235,14 @@ const UserProfile = ({ navigation, route }) => {
               <WorkoutButton />
             </View>
             <LogoutModal
-        visible={modalVisible}
-        onConfirm={confirmLogout}
-        onCancel={cancelLogout}
-      />
+              visible={modalVisible}
+              onConfirm={confirmLogout}
+              onCancel={cancelLogout}
+            />
           </View>
         </View>
-      )}
-    </View>
+  
+    </ScrollView>
   );
 };
 
@@ -325,7 +328,7 @@ const styles = StyleSheet.create({
     padding: 18,
     borderRadius: 28,
     borderColor: "#0077CA",
-    borderWidth: 2, 
+    borderWidth: 2,
     alignItems: "center",
     marginTop: 10,
   },
@@ -334,7 +337,6 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     fontSize: 20,
   },
-  
 });
 
 export default App;
