@@ -199,7 +199,6 @@ const Goals = ({ navigation }) => {
                  <Text style={styles.subHeading2}>Dinner</Text>
 
                  <View style={styles.cardBg}>
-                     <Text>{item}</Text>
 
                      {getDailyMeal.Dinner.map((item) => (
                         <View key={item} style={styles.cardBg}>
