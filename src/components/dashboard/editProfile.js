@@ -133,9 +133,9 @@ const EditProfile = ({ navigation, route}) => {
       if (!response.success) {
         throw new Error("Failed to update data");
       }
-      console.log(response)
+      // console.log(response)
 
-      console.log("Data successfully updated");
+      // console.log("Data successfully updated");
         // Optionally, you can navigate to another screen or display a success messag
       goBack();
 

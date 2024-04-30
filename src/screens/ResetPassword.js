@@ -60,7 +60,7 @@ const ResetPassword = ({ navigation }) => {
   };
 
   const resetLink = () =>{
-    console.log(email)
+    // console.log(email)
     if(email){
       saveData("email",email)
       navigation.navigate("ResetConfirmation");

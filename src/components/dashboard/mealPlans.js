@@ -224,7 +224,7 @@ const MealPlans = ({ navigation }) => {
 
         setIsLoading(false);
       } catch (error) {
-        console.log(error, "error");
+        // console.log(error, "error");
         setIsLoading(false);
       }
     } catch (error) {
