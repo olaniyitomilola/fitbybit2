@@ -35,7 +35,7 @@ const ExercisePage = ({ route, navigation }) => {
         requestData,
         accessToken
       );
-      console.log(response, "response");
+      // console.log(response, "response");
       Alert.alert("Message", response.message);
       setIsLoading(false);
     } catch (error) {
