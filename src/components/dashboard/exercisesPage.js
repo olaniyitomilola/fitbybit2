@@ -4,10 +4,12 @@ import {
   Text,
   StyleSheet,
   ScrollView,
+  Pressable,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-import { getRequest } from "../../../helper";
+import { getRequest, postRequest } from "../../../helper";
 import { CheckBox } from "react-native-elements";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -16,22 +18,52 @@ const ExercisePage = ({ route, navigation }) => {
   const [exercises, setExercises] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const handleComplete = ()=>{
+  const handleComplete = async () => {
+    try {
+      setIsLoading(true);
+      const { workoutId } = route.params;
+      const accessToken = await AsyncStorage.getItem("accessToken");
+      const requestData = {
+        workoutPlanId: workoutId,
+      };
+      // Pass workoutId directly, not as an object
+      // const workoutPlanId = workoutId;
 
-  }
+      // Send workoutPlanId in the body of the request
+      const response = await postRequest(
+        "Workout/UpdateDailyWorkout",
+        requestData,
+        accessToken
+      );
+      console.log(response, "response");
+      Alert.alert("Message", response.message);
+      setIsLoading(false);
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+      setIsLoading(false);
+    }
+  };
 
   const ButtonComponent = Platform.select({
     ios: () => (
       <Pressable style={styles.buttonIOS} onPress={handleComplete}>
         <Text style={styles.buttonText}>
-          Mark as Completed
+          {isLoading ? (
+            <ActivityIndicator size="small" color="white" />
+          ) : (
+            "  Mark as Completed"
+          )}
         </Text>
       </Pressable>
     ),
     android: () => (
       <Pressable style={styles.buttonIOS} onPress={handleComplete}>
         <Text style={styles.buttonText}>
-          Mark as Completed
+          {isLoading ? (
+            <ActivityIndicator size="small" color="white" />
+          ) : (
+            "  Mark as Completed"
+          )}
         </Text>
       </Pressable>
     ),
@@ -44,21 +76,22 @@ const ExercisePage = ({ route, navigation }) => {
         const response = await getRequest(
           `Workout/GetExercisesByWorkoutName?name=${workoutName}`
         );
+
         const exercisesForWorkout =
           response?.data?.exercises[workoutName] || [];
-          // Initialize the checked status for each exercise as false
+        // Initialize the checked status for each exercise as false
 
-          //console.log(exercisesForWorkout)
+        //console.log(exercisesForWorkout)
         const exercisesWithCheck = exercisesForWorkout.map((exercise) => ({
           ...exercise,
-          checked: false,
+          // checked: false,
         }));
         // Load checked exercises from AsyncStorage
         const savedExercises = await loadCheckedExercises();
         // Merge saved checked status with exercises data
         const updatedExercises = exercisesWithCheck.map((exercise) => ({
           ...exercise,
-          checked: savedExercises.includes(exercise.id),
+          // checked: savedExercises.includes(exercise.id),
         }));
         setExercises(updatedExercises);
         setIsLoading(false);
@@ -144,7 +177,6 @@ const ExercisePage = ({ route, navigation }) => {
           ) : exercises?.length === 0 ? (
             <Text>No exercises available for {workoutName}.</Text>
           ) : (
-            
             <View>
               {exercises.map((exercise, index) => {
                 return (
@@ -162,19 +194,20 @@ const ExercisePage = ({ route, navigation }) => {
                         <Text style={styles.exerciseDetails}>No Reps</Text>
                       )}
 
-                      <View style={styles.checkboxContainer}>
+                      {/* <View style={styles.checkboxContainer}>
                         <CheckBox
                           checked={exercise.checked}
                           onPress={() => toggleExerciseChecked(index)}
                         />
-                      </View>
+                      </View> */}
                     </View>
                   </View>
                 );
               })}
+              {/* <View>
+                <ButtonComponent />
+              </View> */}
             </View>
-            
-            
           )}
         </View>
       </ScrollView>
@@ -216,6 +249,18 @@ const styles = StyleSheet.create({
   checkboxContainer: {
     marginTop: -28,
     marginLeft: "auto",
+  },
+  buttonIOS: {
+    backgroundColor: "#0077CA",
+    padding: 18,
+    borderRadius: 28,
+    alignItems: "center",
+    marginTop: 10,
+  },
+  buttonText: {
+    color: "white",
+    fontWeight: "700",
+    fontSize: 20,
   },
 });
 

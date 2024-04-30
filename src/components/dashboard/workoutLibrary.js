@@ -25,9 +25,9 @@ const WorkoutLibrary = ({ navigation }) => {
         const response = await getRequest("Workout/GetAllWorkOuts", null, {
           Authorization: `Bearer ${accessToken}`,
         });
-  
+ 
         setWorkoutData(response.data);
-
+    
         // Save workout data in AsyncStorage under the key "userdata"
         await saveData("workoutdata", response.data);
 
@@ -67,6 +67,7 @@ const WorkoutLibrary = ({ navigation }) => {
                   // Navigate to the new page and pass category and exercises data
                   navigation.navigate("ExercisePage", {
                     workoutName: workout.workoutName,
+                    workoutId: workout.workoutId
                     
                   });
                 }}

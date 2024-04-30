@@ -114,7 +114,7 @@ const MealPlans = ({ navigation }) => {
           [activeMealType]:
             total !== null ? total : prevTotalCalories[activeMealType],
         }));
-        console.log(total, "total");
+        
 
         return updatedFoods;
       });
