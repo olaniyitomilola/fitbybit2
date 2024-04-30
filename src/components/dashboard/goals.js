@@ -9,6 +9,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Goals = ({ navigation }) => {
   const [getDailyWorkout, setDailyWorkout] = useState();
+  const [getDailyMeal, setDailyMeal] = useState({})
   const [date, setDate] = useState("");
   const [refreshing, setRefreshing] = useState(false);
 
@@ -29,13 +30,43 @@ const Goals = ({ navigation }) => {
             Authorization: `Bearer ${accessToken}`,
           }
         );
-
+        console.log(response.data)
         setDailyWorkout(response.data);
       } catch (error) {}
     };
 
     getDailyWorkouts();
   }, []);
+
+  useEffect(() => {
+    const getDailyMeals = async () => {
+      try {
+        const accessToken = await AsyncStorage.getItem("accessToken");
+        const currentDate = new Date().toISOString().split("T")[0];
+
+        const response = await getRequest(
+          `Meal/GetMealPlans?date=${currentDate}`,
+          {
+            Authorization: `Bearer ${accessToken}`,
+          }
+        );
+        console.log(response.data[0].mealPlans[0].meals.Breakfast)
+
+        if(response.data[0].mealPlans){
+          setDailyMeal(response.data[0].mealPlans[0].meals)
+        //  console.log(response.data[0].mealPlans[0].meals)
+
+         // console.log(getDailyMeal)
+
+
+
+        }
+       // setDailyWorkout(response.data);
+      } catch (error) {}
+    };
+
+    getDailyMeals();
+  }, [getDailyWorkout]);
 
   const handleComplete = async (workoutId) => {
     try {
@@ -112,7 +143,7 @@ const Goals = ({ navigation }) => {
                       </Text>
                       <View style={styles.checkboxContainer}>
                         <CheckBox
-                          checked={item.checked}
+                          checked={item.status}
                           onPress={() => {
                             const updatedWorkouts = getDailyWorkout.map(
                               (workout) =>
@@ -140,9 +171,54 @@ const Goals = ({ navigation }) => {
 
           <View className="mt-4">
             <Text style={styles.heading3}>Nutrition</Text>
-            <View style={styles.cardBg}>
-              {/* Render nutrition data */}
-            </View>
+            {getDailyMeal.Breakfast ? (
+              <View>
+                <Text style={styles.subHeading2}>Breakfast</Text>
+
+                 <View style={styles.mealCont}>
+                     {getDailyMeal.Breakfast.map((item) => (
+                        <View key={item} style={styles.cardBg}>
+                          <Text>{item}</Text>
+                        </View>
+                      ))}
+                     
+
+                 </View>
+              <Text style={styles.subHeading2}>Lunch</Text>
+
+               <View style={styles.mealCont}>
+                     {getDailyMeal.Lunch.map((item) => (
+                        <View key={item} style={styles.cardBg}>
+                          <Text>{item}</Text>
+                        </View>
+                      ))}
+                     
+
+                 </View>
+
+                 <Text style={styles.subHeading2}>Dinner</Text>
+
+                 <View style={styles.cardBg}>
+                     <Text>{item}</Text>
+
+                     {getDailyMeal.Dinner.map((item) => (
+                        <View key={item} style={styles.cardBg}>
+                          <Text>{item}</Text>
+                        </View>
+                      ))}
+                     
+
+                 </View>
+
+               
+              </View>
+            ) : (
+              <View>
+                <Text style={styles.heading3} className="text-center">
+                  No meals added yet
+                </Text>
+              </View>
+            )}
           </View>
 
           <View className="mt-4">
@@ -180,6 +256,12 @@ const styles = StyleSheet.create({
   subHeading: {
     marginTop: 2,
     fontSize: 13,
+    color: "#1E1E1E8F",
+  },
+  subHeading2: {
+    marginTop: 4,
+    fontSize: 15,
+    fontWeight: "600",
     color: "#1E1E1E8F",
   },
   cardBg: {

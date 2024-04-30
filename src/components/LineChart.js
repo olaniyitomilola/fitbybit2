@@ -8,7 +8,7 @@ const SimpleLineChart = () => {
     labels: ['Sun', 'Mon', 'Tues', 'Wed', 'Thur', 'Fri', "Sat"],
     datasets: [
       {
-        data: [500, 1000, 800, 2000, 2200],
+        data: [0, 0, 2],
         color: (opacity = 1) => `rgba(134, 65, 244, ${opacity})`, // Color of the line
         strokeWidth: 2 // Width of the line
       }
@@ -32,7 +32,7 @@ const SimpleLineChart = () => {
       <LineChart
         data={data}
         width={300} // Width of the chart
-        height={220} // Height of the chart
+        height={200} // Height of the chart
         chartConfig={chartConfig}
       />
     </View>
