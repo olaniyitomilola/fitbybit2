@@ -37,7 +37,7 @@ const Goals = ({ navigation }) => {
             Authorization: `Bearer ${accessToken}`,
           }
         );
-        console.log(response.data);
+        // console.log(response.data);
         setDailyWorkout(response.data);
       } catch (error) {}
     };
@@ -81,11 +81,12 @@ const Goals = ({ navigation }) => {
     getTotalCalories(getDailyMeal?.Lunch) +
     getTotalCalories(getDailyMeal?.Dinner);
 
-  const handleComplete = async (workoutId) => {
+  const handleComplete = async (id) => {
+
     try {
       const accessToken = await AsyncStorage.getItem("accessToken");
       const requestData = {
-        workoutPlanId: workoutId,
+        workoutPlanId: id,
       };
       const response = await postRequest(
         "Workout/UpdateDailyWorkout",
@@ -116,6 +117,7 @@ const Goals = ({ navigation }) => {
           Authorization: `Bearer ${accessToken}`,
         }
       );
+
 
       setDailyWorkout(response.data);
     } catch (error) {
@@ -161,7 +163,7 @@ const Goals = ({ navigation }) => {
                             const updatedWorkouts = getDailyWorkout.map(
                               (workout) =>
                                 workout.id === item.id
-                                  ? { ...workout, checked: !workout.checked }
+                                  ? { ...workout, status: !workout.status }
                                   : workout
                             );
                             setDailyWorkout(updatedWorkouts);
