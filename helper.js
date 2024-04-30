@@ -74,7 +74,7 @@ export const saveData = async (key, value) => {
   try {
     const jsonValue = JSON.stringify(value);
     await AsyncStorage.setItem(key, jsonValue);
-    console.log("Data saved successfully.");
+    // console.log("Data saved successfully.");
   } catch (error) {
     console.error("Error saving data:", error);
   }
@@ -141,11 +141,11 @@ export const saveToken = async (accessToken) => {
 export const calculateBMI = (height, weight) => {
   // Convert height from centimeters to meters
   const heightInMeters = height / 100;
-  console.log(height,weight,heightInMeters)
+  // console.log(height,weight,heightInMeters)
   // Calculate BMI
   const BMI = weight / (heightInMeters * heightInMeters);
 
-  console.log(BMI)
+  // console.log(BMI)
 
   // Determine BMI category based on value
   let category;
